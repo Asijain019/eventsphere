@@ -27,14 +27,14 @@ export function Hero({ cities, city, cityName, stats }: { cities: { slug: string
         <svg className="absolute bottom-10 left-[40%] hidden animate-float text-lime [--r:-8deg] [animation-delay:2s] md:block" width="54" height="54" viewBox="0 0 54 54" fill="currentColor"><path d="M27 0l5 19 22 8-22 8-5 19-5-19L0 27l22-8z" /></svg>
       </div>
 
-      <div className="container-x relative grid items-center gap-8 lg:grid-cols-[1.05fr_.95fr]">
+      <div className="container-x relative grid items-start gap-8 md:grid-cols-[1.05fr_.95fr]">
         <div>
           <motion.div initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-wrap items-center gap-3">
             <span className="chip border-lime/40 text-lime"><Sparkles size={12} /> Discover. Experience. Connect.</span>
             <CitySelector cities={cities} current={city} />
           </motion.div>
 
-          <h1 className="font-display text-[clamp(2.8rem,8.4vw,6.4rem)] font-bold leading-[.92] tracking-tight" aria-label="Your City. Your People. Your Next Experience.">
+          <h1 className="font-display text-[clamp(2.8rem,8.4vw,6.4rem)] font-bold leading-[.92] tracking-tight md:text-[clamp(2.4rem,5.5vw,3.8rem)] lg:text-[clamp(2.8rem,8.4vw,6.4rem)]" aria-label="Your City. Your People. Your Next Experience.">
             {LINES.map((line, li) => (
               <span key={li} className="block overflow-hidden pb-1" aria-hidden>
                 {line.map((word) => {
@@ -61,7 +61,7 @@ export function Hero({ cities, city, cityName, stats }: { cities: { slug: string
         </div>
 
         {/* layered interactive collage */}
-        <Tilt max={6} className="relative mx-auto aspect-[4/5] w-full max-w-[520px] sm:aspect-[5/4]">
+        <Tilt max={6} className="relative mx-auto order-first aspect-[4/3] w-full max-w-[520px] md:order-last md:aspect-[5/4]">
           <motion.div style={{ y: y1 }} className="absolute left-0 top-0 h-[62%] w-[68%] [transform:translateZ(30px)]">
             <SmartImage src={IMG.studentBrainstorm} alt="Students sharing ideas at a campus gathering" className="h-full w-full rounded-[2rem] rotate-[-3deg] shadow-card ring-1 ring-white/20" priority />
           </motion.div>

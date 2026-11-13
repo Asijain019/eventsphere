@@ -47,26 +47,25 @@ export default async function EventPage({ params }: { params: { slug: string } }
   return (
     <article>
       {banner && <div className={`border-b px-4 py-3 text-center text-sm font-medium ${banner[1]}`} role="status"><FileEdit size={14} className="mr-2 inline" />{banner[0]}{e.isOwner && <Link href="/organizer" className="ml-3 underline">Open dashboard</Link>}</div>}
-      <section className="relative overflow-hidden border-b border-white/10">
-        <SmartImage src={images[0]} alt="" className="absolute inset-0 h-full w-full scale-110 opacity-25 blur-2xl" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/80 to-ink" />
-        <div className="container-x relative grid gap-6 py-7 sm:gap-10 sm:py-10 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:py-14">
-          <div className="order-last lg:order-first"><Gallery images={images} title={e.title} /></div>
-          <div className="order-first space-y-4 sm:space-y-5 lg:order-last">
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <SmartImage src={images[0]} alt="" className="pointer-events-none absolute inset-0 z-0 h-full w-full scale-110 opacity-25 blur-2xl" />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-ink/40 via-ink/80 to-ink" />
+        <div className="container-x relative z-10 grid gap-4 py-4 sm:gap-8 sm:py-7 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-10 lg:py-14">
+          <div className="space-y-3 sm:space-y-4 lg:order-last">
             <nav aria-label="Breadcrumb" className="text-xs text-white/50"><Link href="/events" className="hover:text-lime">Events</Link> / <Link href={`/events?category=${e.category.slug}`} className="hover:text-lime">{e.category.name}</Link></nav>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full px-3 py-1 text-xs font-bold text-ink" style={{ background: e.category.color }}>{e.category.name}</span>
               <span className="chip">{e.mode === "ONLINE" ? <><Laptop size={12} />Online</> : e.mode === "HYBRID" ? "Hybrid" : "In person"}</span>
               {e.isDemo && <span className="chip">Sample event</span>}
             </div>
-            <h1 className="font-display text-3xl font-bold leading-tight sm:text-6xl sm:leading-[.98]">{e.title}</h1>
-            <ul className="space-y-2 text-sm text-white/80 sm:text-base">
+            <h1 className="font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-6xl lg:leading-[.98]">{e.title}</h1>
+            <ul className="space-y-1.5 text-sm text-white/80 sm:space-y-2">
               <li className="flex items-start gap-3"><Calendar size={18} className="mt-0.5 shrink-0 text-violet-400" /><span>{formatDate(e.startAt, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}{!sameDay && <> – {formatDate(e.endAt, { day: "numeric", month: "long" })}</>}</span></li>
               <li className="flex items-start gap-3"><Clock size={18} className="mt-0.5 shrink-0 text-lime" /><span>{formatTime(e.startAt)} – {formatTime(e.endAt)} IST</span></li>
               <li className="flex items-start gap-3"><MapPin size={18} className="mt-0.5 shrink-0 text-magenta" /><span>{e.mode === "ONLINE" ? "Online event" : <>{v?.name ?? "Venue TBA"}{v?.locality ? `, ${v.locality}` : ""}, {e.city.name}</>}</span></li>
             </ul>
             <div>
-              <p className="line-clamp-3 leading-relaxed text-white/70">{descriptionSummary}</p>
+              <p className="line-clamp-2 leading-relaxed text-white/70 sm:line-clamp-3">{descriptionSummary}</p>
               <Link href="#about" className="mt-1 inline-block text-sm font-semibold text-lime hover:underline">Full event details</Link>
             </div>
             <RegisterCard loggedIn={!!user} registration={e.registration}
@@ -74,6 +73,9 @@ export default async function EventPage({ params }: { params: { slug: string } }
                 startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />
             {e.registrationDeadline && e.status === "PUBLISHED" && new Date(e.startAt) > new Date() && <div className="card p-5"><Countdown to={new Date(e.registrationDeadline).toISOString()} /></div>}
             <div className="flex items-center gap-3"><FavouriteButton eventId={e.id} initial={e.favourited} loggedIn={!!user} className="!h-12 !w-12" /><span className="text-sm text-white/60">Save for later</span></div>
+          </div>
+          <div className="lg:order-first [&>div>div:first-child]:!aspect-[16/9]">
+            <Gallery images={images} title={e.title} />
           </div>
         </div>
       </section>
