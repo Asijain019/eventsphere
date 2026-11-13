@@ -13,8 +13,8 @@ const TONE = { open: "bg-lime text-ink", few: "bg-orange text-ink", full: "bg-wh
 export function EventCard({ event: e, className, favourite }: { event: EventListItem; className?: string; favourite?: React.ReactNode }) {
   const st = registrationState(e);
   return (
-    <Tilt className={className}>
-      <article className="group card relative flex h-full flex-col overflow-hidden transition-shadow hover:shadow-glow">
+    <Tilt className={cn("min-w-0", className)}>
+      <article className="group card relative flex h-full min-w-0 flex-col overflow-hidden transition-shadow hover:shadow-glow">
         <Link href={`/events/${e.slug}`} className="relative block aspect-video overflow-hidden" aria-label={`View ${e.title}`}>
           <SmartImage src={e.posterUrl || CATEGORY_POSTER[e.categorySlug]} alt={`${e.title} poster`} className="h-full w-full" imgClassName="transition-transform duration-500 group-hover:scale-105" fallbackLabel={e.title} />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
