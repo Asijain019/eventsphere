@@ -1,286 +1,100 @@
 # EventSphere
 
-**Discover. Experience. Connect.** — an inter-college and city-wide event discovery, registration and student-networking platform. Jaipur first, multi-city by design.
+[![CI](https://github.com/Asijain019/eventsphere/actions/workflows/ci.yml/badge.svg)](https://github.com/Asijain019/eventsphere/actions/workflows/ci.yml)
 
-> College System Design + DevOps project. Everything below describes what is actually in this repository; items that could not be verified in the build environment are flagged in [Known limitations](#18-known-limitations--future-enhancements).
+EventSphere helps students discover campus and city events, register individually or as teams, and connect with other attendees. Jaipur is the default city.
 
----
+**Repository:** [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere)<br>
+**Live application:** Not deployed yet.
 
-## 1. Description
+## Features
 
-EventSphere combines District-style local discovery, Eventbrite-style registration and Meetup-style communities. Students and the public can discover events across colleges, register (individually or as teams), apply as performers/contestants or volunteers, join event and interest communities, connect with other attendees and message them once a connection is accepted. Organizers get a dashboard to create and publish events, manage registrations and applications, and post announcements.
+- Search and filter events by city, college, category, date, and price.
+- Register individually or as a team; capacity and waitlists are enforced.
+- Create events and manage registrations, volunteers, participation, and check-in.
+- Join communities, find teammates, and connect with attendees.
+- Role-based authentication, profiles, and in-app notifications.
 
-## 2. Project objective
+## Technology
 
-Demonstrate a realistic, production-style system: a **three-tier modular monolith** (Next.js UI + API, PostgreSQL, background/queue layer) with authentication and role-based access control, transactional capacity control, privacy-aware social features, containerisation (Docker), CI (GitHub Actions) and a Vercel-ready deployment.
+Next.js 14 · TypeScript · Tailwind CSS · PostgreSQL · Drizzle ORM · Vitest · Docker
 
-## 3. Features
+## Architecture
 
-| Area | What works |
-|---|---|
-| Auth & profiles | Sign up / log in / log out (bcrypt + signed httpOnly JWT cookie), protected routes, profile editing (bio, college, city, skills, interests, avatar), 5 roles with RBAC |
-| Discovery | Search, filters (category, date, city, college, free/paid, online/offline), sort (upcoming / popular / newest), pagination, favourites, multi-city (Jaipur default) |
-| Registration | Individual + team registration, duplicate prevention, **capacity enforced in a DB transaction**, waitlist, ticket reference, My Registrations |
-| Participation | Performer/contestant applications with a 6-state review workflow |
-| Volunteers | Role postings, applications, accept/reject, shift assignment, completion status |
-| Communities | Interest communities and per-event communities: members, announcements, posts, comments |
-| Connect | Opt-in attendee discovery, connection requests (accept / decline / remove), block / report; **messaging only after acceptance (enforced server-side)** |
-| Find My Team | Create teams, publish open roles/skills, join requests, accept/reject |
-| Organizer | Create/edit/publish/cancel events, poster upload, registrations, applicants, announcements, analytics, check-in |
-| Notifications | In-app notifications via an async in-process queue |
-| DevOps | Multi-stage Dockerfile, Docker Compose, GitHub Actions CI, Vercel config, health endpoint |
+![EventSphere architecture](public/assets/ref/architecture.png)
 
-## 4. Screenshots
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for implementation details.
 
-Screenshots are not currently included in the repository. Run the application using the setup instructions below to view the home, discovery, event, organizer, community and messaging pages.
+## Run locally
 
-## 5. Technology stack
+Requirements: Node.js 20+, npm, and Docker.
 
-| Layer | Choice |
-|---|---|
-| Frontend | Next.js 14 (App Router) + TypeScript, Tailwind CSS, Framer Motion, lucide-react |
-| Backend | Next.js route handlers (`/api/v1/*`), thin handlers → service modules, Zod validation |
-| Database | PostgreSQL 16 |
-| ORM | **Drizzle ORM** + `drizzle-kit` SQL migrations |
-| Auth | `jose` JWT session cookie + `bcryptjs` |
-| Tests | Vitest with **PGlite** (real Postgres engine in-process — no DB service needed) |
-| DevOps | Docker (multi-stage), Docker Compose, GitHub Actions, Vercel |
-
-**Honest note — Drizzle instead of Prisma.** The original brief preferred Prisma. Prisma's engine binaries could not be downloaded/verified in the build sandbox, so the project uses **Drizzle ORM**, which is pure TypeScript, fully type-safe and generates plain SQL migrations (`drizzle/0000_init.sql`). The schema design (entities, constraints, indexes) is exactly what the brief asked for; only the ORM differs. (Legacy `prisma` script names in `package.json` are leftovers and are not used.)
-
-Redis appears in `docker-compose.yml` as an **optional** profile only: the MVP rate limiter and notification queue are in-process (see [Architecture](docs/ARCHITECTURE.md)).
-
-## 6. Architecture
-
-```mermaid
-flowchart TB
-  subgraph Presentation["Presentation tier (Next.js App Router)"]
-    A[Attendee UI<br/>explore, event, communities, messages]
-    B[Organizer dashboard]
-    C[Admin views]
-  end
-  subgraph Application["Application tier (modular monolith, /api/v1)"]
-    R[route&#40;&#41; wrapper<br/>session, RBAC, Zod, error JSON]
-    M1[identity]
-    M2[events + registration + teams]
-    M3[organizer]
-    M4[participation + volunteer]
-    M5[communities + connections + messaging]
-    M6[notifications queue]
-  end
-  subgraph Data["Data tier"]
-    PG[(PostgreSQL)]
-    FS[(Image storage<br/>local / Vercel Blob)]
-    RD[(Redis — optional)]
-  end
-  A --> R
-  B --> R
-  C --> R
-  R --> M1 & M2 & M3 & M4 & M5
-  M2 & M3 & M4 & M5 -.async.-> M6
-  M1 & M2 & M3 & M4 & M5 & M6 --> PG
-  M3 --> FS
-  R -.future.-> RD
-```
-
-ASCII fallback:
-
-```
- Browser ──► Next.js (UI pages + /api/v1 handlers)
-              │  route(): session → RBAC → Zod → service
-              ├─ modules: identity | events/registration/teams | organizer
-              │           participation/volunteer | communities/connections/messaging
-              ├─ notify() async queue ──► notifications table
-              ▼
-         PostgreSQL  (+ image storage: public/uploads or Vercel Blob; Redis optional)
-```
-
-Full write-up: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The reference diagram supplied with the project is in `public/assets/ref/architecture.png`.
-
-## 7. Database overview
-
-Defined in `src/db/schema.ts` (source of truth), applied by `drizzle/0000_init.sql`. 33 tables including users, profiles, roles, colleges, organizations, categories, venues, events, media, registrations, teams, communities, posts, comments, connection requests, conversations, messages, participation and volunteer entities, notifications, check-ins and reports. Highlights: composite unique constraints (one registration per user per event, one connection request per pair), indexes on hot filters (city + start date + status), enum-typed statuses.
-
-```mermaid
-erDiagram
-  CITY ||--o{ COLLEGE : has
-  CITY ||--o{ VENUE : has
-  USER ||--|| USER_PROFILE : has
-  COLLEGE ||--o{ USER_PROFILE : attended_by
-  USER ||--o{ EVENT : organizes
-  EVENT_CATEGORY ||--o{ EVENT : classifies
-  VENUE ||--o{ EVENT : hosts
-  EVENT ||--o{ REGISTRATION : has
-  USER ||--o{ REGISTRATION : makes
-  EVENT ||--o{ TEAM : has
-  TEAM ||--o{ TEAM_MEMBER : has
-  EVENT ||--o{ PARTICIPATION_OPPORTUNITY : offers
-  PARTICIPATION_OPPORTUNITY ||--o{ PARTICIPATION_APPLICATION : receives
-  EVENT ||--o{ VOLUNTEER_ROLE : needs
-  VOLUNTEER_ROLE ||--o{ VOLUNTEER_APPLICATION : receives
-  VOLUNTEER_APPLICATION ||--o| VOLUNTEER_ASSIGNMENT : becomes
-  EVENT ||--o| COMMUNITY : may_have
-  COMMUNITY ||--o{ COMMUNITY_MEMBER : has
-  COMMUNITY ||--o{ COMMUNITY_POST : has
-  COMMUNITY_POST ||--o{ COMMENT : has
-  USER ||--o{ CONNECTION_REQUEST : sends
-  CONVERSATION ||--o{ MESSAGE : has
-  USER ||--o{ NOTIFICATION : receives
-```
-
-## 8. Folder structure
-
-```
-src/
-  app/            pages (server components) + app/api/v1 route handlers
-  components/     UI by area (home, events, organizer, communities, ui primitives…)
-  modules/        business logic + DB access + Zod schemas per domain
-  db/             schema.ts, client, seed.ts + seed-data.ts
-  lib/            api wrapper, session, auth, notify queue, storage, images map, constants
-drizzle/          generated SQL migrations
-scripts/          migrate.ts / migrate.mjs, seed.ts, worker.ts, gen-api-docs.ts
-tests/            Vitest suites (+ helpers/db.ts = PGlite harness, infra/ = seed & health)
-docs/             ARCHITECTURE, API, DEPLOYMENT, GIT_WORKFLOW, TESTING, SYSTEM_DESIGN_NOTES
-public/assets/ref the reference images supplied with the project
-.github/          CI workflow, PR template
-Dockerfile, docker-compose.yml, docker-compose.dev.yml, docker-entrypoint.sh, vercel.json
-```
-
-## 9. Local setup (without Docker for the app)
-
-Prerequisites: **Node.js 20+**, npm, and either Docker (for Postgres) or a local PostgreSQL 14+.
-
-```bash
+```powershell
+git clone https://github.com/Asijain019/eventsphere.git
+cd eventsphere
 npm ci
-cp .env.example .env                         # then edit AUTH_SECRET (openssl rand -base64 32)
-docker compose -f docker-compose.dev.yml up -d   # Postgres on localhost:5432
-npm run db:migrate                           # apply migrations
-npm run db:seed                              # demo data (idempotent)
-npm run dev                                  # http://localhost:3000
+Copy-Item .env.example .env
 ```
 
-## 10. Environment variables
+Set `AUTH_SECRET` to a random value in `.env` (generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`). The example environment uses the local PostgreSQL settings from the development Compose file.
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | yes | PostgreSQL connection string. Add `?sslmode=require` for managed DBs (Neon/Supabase). |
-| `AUTH_SECRET` | yes | Random string used to sign session JWTs (`openssl rand -base64 32`). |
-| `NEXT_PUBLIC_APP_URL` | recommended | Public base URL (e.g. your Vercel URL). Inlined at build time. |
-| `NEXT_PUBLIC_DEFAULT_CITY` | no | Default city slug, `jaipur`. |
-| `STORAGE_PROVIDER` | no | `local` (dev, writes to `public/uploads`) or `blob` (Vercel Blob; **required on Vercel**). |
-| `BLOB_READ_WRITE_TOKEN` | if `blob` | Vercel Blob token. |
-| `REDIS_URL` | no | Reserved for the scale-out path; unused by the MVP. |
-| Docker Compose only | no | `POSTGRES_USER/PASSWORD/DB`, `APP_PORT`, `DB_PORT` (all have defaults). |
-
-Never commit `.env`. Only `.env.example` is tracked.
-
-## 11. Docker
-
-```bash
-docker compose up --build        # db + app (auto-migrates) + one-shot seed → http://localhost:3000
-docker compose up --build app    # without demo data
-docker compose --profile worker --profile redis up   # optional worker + Redis
-docker compose down -v           # stop and delete the database volume
+```powershell
+docker compose -f docker-compose.dev.yml up -d
+npm run db:migrate
+npm run db:seed
+npm run dev
 ```
 
-The runner image is multi-stage, non-root, has a `HEALTHCHECK` on `/api/health`, and runs `migrate.mjs` before starting the server (details in the `Dockerfile` header). `AUTH_SECRET` falls back to an **insecure dev-only default** in compose; set your own in `.env` for anything public.
+Open [http://localhost:3000](http://localhost:3000).
 
-## 12. Migrations and seeding
+## Docker
 
-```bash
-npm run db:generate   # after editing src/db/schema.ts → new SQL in drizzle/
-npm run db:migrate    # apply (tsx scripts/migrate.ts). Plain-JS equivalent: node scripts/migrate.mjs
-npm run db:seed       # idempotent demo data
-npm run db:reset      # migrate + seed
+From the repository root, build and run the app, PostgreSQL, and demo seed:
+
+```powershell
+docker compose up --build
 ```
 
-Seed contents: 8 cities, 12 real Jaipur institutions, 12 categories, 18 venues, 32 users, **31 demo events** across all categories (dates always 1–90 days in the future relative to when the seed first ran), registrations (one event full, one with 1 seat left, one waitlist), teams, communities with posts/comments, connections + a conversation, opportunities and volunteer roles with applications in every status, notifications and favourites.
+The app is available at [http://localhost:3000](http://localhost:3000). To rebuild the app container after changing code or public assets, run `docker compose up --build -d app`.
 
-## 13. Testing
+## Deploy to Vercel
 
-```bash
-npm test              # Vitest (uses PGlite; no database service required)
+1. Create a PostgreSQL database with a provider such as Neon or Supabase. Keep its connection string private.
+2. In Vercel, import `Asijain019/eventsphere` as a new project. Use the repository root as the project root and select Node.js 20.
+3. Create a Vercel Blob store for user-uploaded images.
+4. Add these environment variables in **Project Settings → Environment Variables** for the environments you use:
+
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | PostgreSQL connection string; use SSL for hosted databases |
+   | `AUTH_SECRET` | Random secret generated with the command above |
+   | `NEXT_PUBLIC_APP_URL` | Your Vercel production URL, e.g. `https://<project>.vercel.app` |
+   | `NEXT_PUBLIC_DEFAULT_CITY` | `jaipur` |
+   | `STORAGE_PROVIDER` | `blob` |
+   | `BLOB_READ_WRITE_TOKEN` | Token from the Vercel Blob store |
+
+5. Apply the database migrations once from the repository root. In PowerShell:
+
+   ```powershell
+   $env:DATABASE_URL = "<production PostgreSQL connection string>"
+   npm ci
+   npm run db:migrate
+   Remove-Item Env:DATABASE_URL
+   ```
+
+6. Deploy from Vercel or push to the connected GitHub branch. Check that `https://<project>.vercel.app/api/health` returns a healthy response. If you change `NEXT_PUBLIC_APP_URL`, redeploy so the updated value is included in the client build.
+
+Do not run production migrations as part of the Vercel build. Seed demo data only when setting up a demo instance.
+
+## Checks
+
+```powershell
 npm run lint
 npm run typecheck
+npm test
+npm run build
 ```
 
-Manual end-to-end scripts for the six journeys in the brief: [docs/TESTING.md](docs/TESTING.md).
+## Documentation
 
-## 14. Build
-
-```bash
-npm run build && npm start
-```
-
-## 15. CI/CD (GitHub Actions)
-
-`.github/workflows/ci.yml` runs on **every push and pull request**:
-
-1. **quality** job: checkout → Node 20 with npm cache → `npm ci` → `npm run lint` → `npm run typecheck` → `npm test` → `npm run build` (dummy env values; no DB needed).
-2. **docker** job: Buildx build of the production image (`push: false`) with GitHub Actions layer cache, then a smoke check (non-root user, migration files present).
-
-Deployment is **not** part of this workflow. A Vercel Git integration can be configured separately for production and preview deployments.
-
-## 16. Deployment (Vercel)
-
-Short version (full checklist in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
-
-1. Create a Postgres database (Neon, Supabase or Vercel Postgres) and copy its connection string.
-2. Push the repo to GitHub ([docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md)).
-3. In Vercel: **Add New → Project → import the repo** (framework auto-detected as Next.js).
-4. Set env vars: `DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL`, `STORAGE_PROVIDER=blob`, `BLOB_READ_WRITE_TOKEN` (create a Blob store in the Vercel dashboard).
-5. Run migrations **once from your machine** against the production DB: `DATABASE_URL="<prod url>" npm run db:migrate`; optionally `npm run db:seed` for demo data.
-6. Deploy; verify `https://<your-app>/api/health` returns `{"status":"ok"}`.
-
-Migrations are deliberately run manually (not in the Vercel build) so that a bad build never mutates the production schema and preview deployments cannot migrate the production database.
-
-## 17. Links
-
-| | |
-|---|---|
-| Public repository | [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere) |
-| Live application | Not deployed yet; add the production URL here after deployment. |
-
-### Demo accounts
-
-All use password `Password123!` (seeded by `npm run db:seed`).
-
-| Role | Email |
-|---|---|
-| Student | student@eventsphere.dev, student2@eventsphere.dev, student3@eventsphere.dev |
-| Organizer | organizer@eventsphere.dev, organizer2@eventsphere.dev |
-| College admin | collegeadmin@eventsphere.dev |
-| Platform admin | admin@eventsphere.dev |
-
-### Demo-data disclosure
-
-The institutions are real names used only for realism; **every event, person, post, message and registration in the seed is fictional sample data** (events carry `is_demo = true`) and implies no affiliation with those institutions. Venue coordinates are approximate. Remove demo data before any real launch.
-
-### Codebase map
-
-| Feature area | Main implementation |
-|---|---|
-| Attendee experience | `src/app`, `src/components/home`, `src/components/events`, `src/components/profile` |
-| Identity and event operations | `src/modules/identity`, `src/modules/events`, `src/modules/organizer`, `src/db` |
-| Participation and communities | `src/modules/participation`, `src/modules/volunteer`, `src/modules/communities`, `src/modules/connections`, `src/modules/messaging` |
-| Delivery and documentation | `tests`, `Dockerfile`, `.github/workflows`, `docs` |
-
-## 18. Known limitations & future enhancements
-
-Limitations (honest list):
-- Local validation covers lint, type-checking, unit/integration tests, production build and Docker image build/smoke checks. A GitHub Actions run still requires a push to the configured repository.
-- Paid events show a price but there is **no payment gateway** (registration is free for the MVP; a payment sandbox is a future integration).
-- Local-disk uploads (`STORAGE_PROVIDER=local`) are for development; in the standalone Docker server files added at runtime may only be served after a restart. Use Vercel Blob in production.
-- Rate limiting and the notification queue are **in-process** (single instance). Use Redis/BullMQ to scale out.
-- Messaging is request/response (no WebSocket push).
-- The event passes/badges image and EventEase website reference were **not supplied** (see below).
-
-Future: payments (Razorpay/Stripe), real-time chat (WebSockets/SSE), email/push notifications, search engine indexing, QR check-in scanning app, multi-college admin tooling, moderation dashboard, recommendation engine.
-
-## Reference images
-
-The supplied event, arts, community, music, photography, reading and sports images are stored in `public/assets/ref/` and mapped in `src/lib/images.ts` for the home page and category artwork. The event passes/badges image and EventEase website reference were not supplied; those optional elements continue to use their designed fallbacks.
-
-## Further documentation
-
-[Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Git workflow](docs/GIT_WORKFLOW.md) · [Deployment](docs/DEPLOYMENT.md) · [Testing](docs/TESTING.md) · [System design notes](docs/SYSTEM_DESIGN_NOTES.md)
+[API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [Testing](docs/TESTING.md) · [Git workflow](docs/GIT_WORKFLOW.md)
