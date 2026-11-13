@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --font-display: "Space Grotesk", "Archivo", system-ui, sans-serif; --font-body: "DM Sans", system-ui, sans-serif; --font-serif: "Fraunces", Georgia, serif; }
+html { scroll-behavior: smooth; }
+body { @apply bg-ink text-paper font-sans antialiased; background-image: radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px); background-size: 22px 22px; }
+::selection { background: #D6FF55; color: #101014; }
+h1,h2,h3,.font-display { font-family: var(--font-display); letter-spacing: -0.03em; }
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn bg-brand-gradient text-white shadow-glow hover:brightness-110 active:scale-[.98]; }
+  .btn-lime { @apply btn bg-lime text-ink hover:bg-white active:scale-[.98]; }
+  .btn-ghost { @apply btn border border-white/15 bg-white/5 text-paper backdrop-blur hover:bg-white/10; }
+  .btn-danger { @apply btn border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20; }
+  .input { @apply w-full rounded-xl border border-white/10 bg-ink2 px-4 py-3 text-sm text-paper placeholder:text-white/35 focus:border-violet focus:outline-none focus:ring-2 focus:ring-violet/40; }
+  .label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white/55; }
+  .card { @apply rounded-3xl border border-white/10 bg-ink2/80 shadow-card; }
+  .glass { @apply rounded-3xl border border-white/15 bg-white/[.06] backdrop-blur-xl; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80; }
+  .section-title { @apply font-display text-4xl font-bold leading-[.95] sm:text-5xl lg:text-6xl; }
+  .skeleton { @apply animate-shimmer rounded-2xl bg-[linear-gradient(110deg,#1A1A22,45%,#2a2a36,55%,#1A1A22)] bg-[length:200%_100%]; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

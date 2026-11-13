@@ -1,0 +1,51 @@
+# Keep the build context small and free of secrets. Everything listed here never reaches any image stage.
+
+# dependencies and build output (rebuilt inside the image); .next-* are per-agent / e2e build dirs (NEXT_DIST_DIR)
+node_modules
+.next
+.next-*
+out
+
+# VCS, CI and tooling
+.git
+.gitignore
+.github
+.vercel
+.claude
+.vscode
+.idea
+
+# secrets and local environment (nothing from .env* may enter an image)
+.env
+.env.*
+
+# tests: Vitest suite, Playwright suite and their output
+tests
+e2e
+playwright.config.*
+vitest.config.*
+playwright-report
+test-results
+blob-report
+playwright
+coverage
+
+# runtime uploads live in a volume, not in the image
+public/uploads/*
+!public/uploads/.gitkeep
+
+# docs and container definitions are not needed to build
+docs
+*.md
+Dockerfile
+docker-compose*.yml
+.dockerignore
+vercel.json
+
+# misc
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db

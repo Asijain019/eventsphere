@@ -1,0 +1,78 @@
+# EventSphere full stack:   docker compose up --build      ->  http://localhost:3000
+# Services: db (Postgres 16) -> app (migrates then serves) -> seed (one-shot demo data, idempotent). Redis is optional (--profile redis).
+# Run only app+db without demo data:   docker compose up --build app
+# Override any value with a `.env` file next to this file (see .env.example). No real secrets are committed.
+name: eventsphere
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eventsphere}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eventsphere}
+      POSTGRES_DB: ${POSTGRES_DB:-eventsphere}
+    ports: ["${DB_PORT:-5432}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_DEFAULT_CITY: ${NEXT_PUBLIC_DEFAULT_CITY:-jaipur}
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-eventsphere}:${POSTGRES_PASSWORD:-eventsphere}@db:5432/${POSTGRES_DB:-eventsphere}
+      # DEV-ONLY default so the stack starts out of the box. Set a real random value (openssl rand -base64 32) in .env for anything public.
+      AUTH_SECRET: ${AUTH_SECRET:-dev-only-insecure-secret-change-me-before-deploying}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:-}
+      REDIS_URL: ${REDIS_URL:-}
+    ports: ["${APP_PORT:-3000}:3000"]
+    volumes: [uploads:/app/public/uploads]
+
+  # One-shot demo-data loader. Uses the `build` stage because it contains tsx and the TypeScript sources. Idempotent.
+  seed:
+    build:
+      context: .
+      target: build
+    depends_on:
+      app: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-eventsphere}:${POSTGRES_PASSWORD:-eventsphere}@db:5432/${POSTGRES_DB:-eventsphere}
+    command: ["npx", "tsx", "scripts/seed.ts"]
+    restart: "no"
+
+  # Optional. The MVP rate limiter / notification queue are in-process; Redis is provisioned for the scale-out path.
+  redis:
+    image: redis:7-alpine
+    profiles: ["redis"]
+    restart: unless-stopped
+    ports: ["6379:6379"]
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 5s, timeout: 3s, retries: 10 }
+
+  # Optional background worker (housekeeping). Reuses the build stage so it can run TypeScript.
+  worker:
+    build:
+      context: .
+      target: build
+    profiles: ["worker"]
+    depends_on:
+      app: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-eventsphere}:${POSTGRES_PASSWORD:-eventsphere}@db:5432/${POSTGRES_DB:-eventsphere}
+    command: ["npx", "tsx", "scripts/worker.ts"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:
