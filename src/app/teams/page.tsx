@@ -26,18 +26,18 @@ export default async function TeamsPage({ searchParams }: { searchParams: Record
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <SmartImage src={IMG.studentBrainstorm} alt="" className="absolute inset-0 h-full w-full opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
-        <div className="container-x relative flex flex-wrap items-end justify-between gap-6 py-14">
-          <div><Reveal><p className="chip mb-3 !border-lime/40 !text-lime">Find my team</p></Reveal>
-            <Reveal delay={0.05}><h1 className="font-display text-5xl font-bold leading-[.95] sm:text-7xl">Build the <span className="bg-brand-gradient bg-clip-text text-transparent">dream team.</span></h1></Reveal>
-            <Reveal delay={0.1}><p className="mt-4 max-w-xl text-white/70">Hackathons and competitions are better together. Post the skills you need or join a team that needs yours.</p></Reveal></div>
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div aria-hidden className="pointer-events-none absolute inset-0"><SmartImage src={IMG.creativeNetworking} alt="" className="h-full w-full opacity-35" fallbackLabel="" /></div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+        <div className="container-x relative z-10 flex flex-wrap items-end justify-between gap-4 py-8 sm:py-10">
+          <div className="max-w-3xl"><Reveal><p className="chip mb-3 !border-lime/40 !text-lime">Find my team</p></Reveal>
+            <Reveal delay={0.05}><h1 className="font-display text-4xl font-bold leading-tight sm:text-6xl">Build the <span className="bg-brand-gradient bg-clip-text text-transparent">dream team.</span></h1></Reveal>
+            <Reveal delay={0.1}><p className="mt-3 max-w-xl text-white/70">Hackathons and competitions are better together. Post the skills you need or join a team that needs yours.</p></Reveal></div>
           <Link href={user ? "/teams/new" : "/login?next=/teams/new"} className="btn-lime"><Plus size={16} />Create a team</Link>
         </div>
       </section>
-      <div className="container-x py-8">
-        <form method="get" className="card mb-8 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.4fr_1fr_auto_auto] lg:items-end" role="search">
+      <div className="container-x py-6">
+        <form method="get" className="card mb-6 grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.4fr_1fr_auto_auto] lg:items-end" role="search">
           <div><label className="label" htmlFor="tq">Search</label><input id="tq" name="q" className="input" defaultValue={raw.q} placeholder="Team or event name" /></div>
           <div><label className="label" htmlFor="te">Event</label><select id="te" name="eventId" className="input" defaultValue={raw.eventId ?? ""}><option value="">All team events</option>{evs.map((e) => <option key={e.id} value={e.id}>{e.title}</option>)}</select></div>
           <div><label className="label" htmlFor="tk">Skill needed</label><select id="tk" name="skill" className="input" defaultValue={raw.skill ?? ""}><option value="">Any</option>{SKILLS.map((s) => <option key={s}>{s}</option>)}</select></div>
@@ -49,7 +49,7 @@ export default async function TeamsPage({ searchParams }: { searchParams: Record
         ) : (
           <>
             <p className="mb-4 text-sm text-white/60">{data.total} team{data.total === 1 ? "" : "s"}</p>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data.items.map((t, i) => {
                 const rel = mine.find((m) => m.id === t.id);
                 const full = t.status !== "FORMING" || t.memberCount >= t.maxSize;

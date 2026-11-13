@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/session";
 import { DEFAULT_CITY } from "@/lib/constants";
-import { IMG } from "@/lib/images";
+import { CATEGORY_POSTER, IMG } from "@/lib/images";
 import { listEvents, getMeta } from "@/modules/events/queries";
 import { cleanParams, eventFiltersSchema } from "@/modules/events/schemas";
 import { EventCard } from "@/components/events/EventCard";
@@ -15,6 +15,22 @@ import { Reveal } from "@/components/ui/Reveal";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Explore events" };
 
+const CATEGORY_CARD_IMAGES: Record<string, readonly string[]> = {
+  "music-concerts": [IMG.musicHeadphones, IMG.djHands, IMG.crowd, IMG.stageBW, IMG.djConsole],
+  "cultural-fests": [IMG.cultureWordCloud, IMG.venue, IMG.travelCollage, IMG.classicMicrophone],
+  hackathons: [IMG.hackathon, IMG.collaborativePuzzle, IMG.creativeNetworking, IMG.architecture],
+  technology: [IMG.creativeNetworking, IMG.architecture, IMG.hackathon],
+  sports: [IMG.sportsCollage, IMG.sportsIllustration, IMG.tableTennis, IMG.championshipCelebration],
+  workshops: [IMG.calligraphyWorkshop, IMG.typography, IMG.creativeArtClub, IMG.bookStack, IMG.architecture],
+  entrepreneurship: [IMG.collaborativePuzzle, IMG.creativeNetworking, IMG.studentBrainstorm],
+  "dance-performing-arts": [IMG.openMicPoster, IMG.classicMicrophone, IMG.djHands, IMG.crowd],
+  "photography-art": [IMG.urbanPhotography, IMG.cameraMemories, IMG.vintagePhotography, IMG.creativeArtClub, IMG.travelCollage],
+  gaming: [IMG.gameOn, IMG.musicToggle, IMG.djConsole],
+  literature: [IMG.readingRainbows, IMG.bookStack, IMG.vintagePhotography],
+  "social-impact": [IMG.peopleNetwork, IMG.communityBoard, IMG.studentBrainstorm],
+};
+const ALL_CARD_IMAGES = Object.values(IMG).flatMap((source) => source === null ? [] : [source]);
+
 export default async function EventsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
   const raw = cleanParams(searchParams);
   const parsed = eventFiltersSchema.safeParse(raw);
@@ -23,22 +39,35 @@ export default async function EventsPage({ searchParams }: { searchParams: Recor
   let data: Awaited<ReturnType<typeof listEvents>> | null = null; let meta: Awaited<ReturnType<typeof getMeta>> | null = null; let failed = false;
   try { [data, meta] = await Promise.all([listEvents(filters, user), getMeta(filters.city ?? DEFAULT_CITY)]); } catch (e) { console.error("[events page]", e); failed = true; }
   const city = meta?.cities.find((c) => c.slug === (filters.city ?? DEFAULT_CITY))?.name ?? (filters.city === "all" ? "All cities" : "your city");
+  const usedCardImages = new Set<string>();
+  const cardEvents = data?.items.map((event) => {
+    const poster = event.posterUrl ?? CATEGORY_POSTER[event.categorySlug] ?? "";
+    if (event.isDemo && poster && usedCardImages.has(poster)) {
+      const uniquePoster = CATEGORY_CARD_IMAGES[event.categorySlug]?.find((image) => !usedCardImages.has(image))
+        ?? ALL_CARD_IMAGES.find((image) => !usedCardImages.has(image))
+        ?? poster;
+      usedCardImages.add(uniquePoster);
+      return { ...event, posterUrl: uniquePoster };
+    }
+    if (poster) usedCardImages.add(poster);
+    return event;
+  }) ?? [];
 
   const href = (page: number) => { const p = new URLSearchParams(raw); p.set("page", String(page)); return `/events?${p.toString()}`; };
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <SmartImage src={IMG.crowd} alt="" className="absolute inset-0 h-full w-full opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
-        <div className="container-x relative py-14 sm:py-20">
-          <Reveal><p className="chip mb-4 !border-lime/40 !text-lime">Explore · {city}</p></Reveal>
-          <Reveal delay={0.05}><h1 className="font-display text-5xl font-bold leading-[.95] sm:text-7xl">Find your next <span className="text-gradient bg-brand-gradient bg-clip-text text-transparent">experience.</span></h1></Reveal>
-          <Reveal delay={0.1}><p className="mt-4 max-w-xl text-white/70">Concerts, hackathons, fests, workshops and more from colleges and organisers across {city}. Filter by what you love.</p></Reveal>
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div aria-hidden className="pointer-events-none absolute inset-0"><SmartImage src={IMG.crowd} alt="" className="h-full w-full opacity-30" fallbackLabel="" /></div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+        <div className="container-x relative z-10 py-9 sm:py-12">
+          <Reveal><p className="chip mb-3 !border-lime/40 !text-lime">Explore · {city}</p></Reveal>
+          <Reveal delay={0.05}><h1 className="font-display text-4xl font-bold leading-tight sm:text-6xl">Find your next <span className="text-gradient bg-brand-gradient bg-clip-text text-transparent">experience.</span></h1></Reveal>
+          <Reveal delay={0.1}><p className="mt-3 max-w-xl text-white/70">Concerts, hackathons, fests, workshops and more from colleges and organisers across {city}. Filter by what you love.</p></Reveal>
         </div>
       </section>
 
-      <div className="container-x py-8">
+      <div className="container-x py-6">
         {failed || !meta || !data ? (
           <ErrorState message="We couldn't load events right now. Please refresh in a moment." />
         ) : (
@@ -48,8 +77,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Recor
               <EmptyState title="No events match these filters" body="Try removing a filter, widening the dates or switching city." action={<Link href="/events" className="btn-primary">Reset filters</Link>} />
             ) : (
               <>
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {data.items.map((e, i) => (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {cardEvents.map((e, i) => (
                     <Reveal key={e.id} delay={(i % 3) * 0.06}><EventCard event={e} className="h-full" favourite={<FavouriteButton eventId={e.id} initial={!!e.favourited} loggedIn={!!user} />} /></Reveal>
                   ))}
                 </div>

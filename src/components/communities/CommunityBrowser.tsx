@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 type Item = { id: string; slug: string; name: string; description: string; type: string; topic: string | null; joinPolicy: string; coverUrl: string | null; memberCount: number; viewerMembership: Membership };
 type Res = { items: Item[]; total: number; page: number; pageSize: number };
-const COVERS = [IMG.typography, IMG.megaphone, IMG.djConsole, IMG.sportsIllustration, IMG.hackathon, IMG.venue];
+const COVERS = [IMG.typography, IMG.megaphone, IMG.djConsole, IMG.sportsIllustration, IMG.hackathon, IMG.venue, IMG.calligraphyWorkshop, IMG.urbanPhotography, IMG.collaborativePuzzle];
 
 export function CommunityBrowser({ loggedIn }: { loggedIn: boolean }) {
   const router = useRouter();
@@ -27,6 +27,14 @@ export function CommunityBrowser({ loggedIn }: { loggedIn: boolean }) {
     try { setData(await api<Res>(`/api/v1/communities?${p}`)); } catch (e: any) { setErr(e.message); }
   }, [type, topic, q, page]);
   useEffect(() => { const t = setTimeout(load, q ? 250 : 0); return () => clearTimeout(t); }, [load, q]);
+
+  const usedCovers = new Set<string>();
+  const covers = data?.items.map((community, i) => {
+    const fallback = COVERS.find((cover) => !usedCovers.has(cover)) ?? COVERS[i % COVERS.length];
+    const cover = community.coverUrl && !usedCovers.has(community.coverUrl) ? community.coverUrl : fallback;
+    usedCovers.add(cover);
+    return cover;
+  }) ?? [];
 
   return (
     <div>
@@ -52,20 +60,20 @@ export function CommunityBrowser({ loggedIn }: { loggedIn: boolean }) {
       )}
       <div className="mt-8">
         {err ? <ErrorState message={err} retry={load} /> : !data ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}</div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-56" />)}</div>
         ) : data.items.length === 0 ? (
           <EmptyState title="No communities found" body={type === "EVENT" ? "Event communities appear when organizers create them for their events." : "Try another topic, or start the first one."} action={loggedIn && type === "INTEREST" ? <button className="btn-primary" onClick={() => setModal(true)}>Create community</button> : undefined} />
         ) : (
           <>
-            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data.items.map((c, i) => (
                 <li key={c.id} className="card group flex h-full flex-col overflow-hidden transition hover:-translate-y-1 hover:border-lime/40">
                   <Link href={`/communities/${c.slug}`} className="block" aria-label={`Open ${c.name}`}>
-                    <SmartImage src={c.coverUrl ?? COVERS[i % COVERS.length]} alt="" className="h-36" imgClassName="transition duration-500 group-hover:scale-105" fallbackLabel={c.name} />
+                    <SmartImage src={covers[i]} alt="" className="h-32" imgClassName="transition duration-500 group-hover:scale-105" fallbackLabel={c.name} />
                   </Link>
-                  <div className="flex flex-1 flex-col gap-3 p-5">
+                  <div className="flex flex-1 flex-col gap-3 p-4">
                     <div className="flex items-center gap-2 text-xs text-white/55">{c.topic && <span className="chip !py-0.5">{c.topic}</span>}<span className="inline-flex items-center gap-1"><Users size={13} />{c.memberCount} member{c.memberCount === 1 ? "" : "s"}</span></div>
-                    <Link href={`/communities/${c.slug}`}><h3 className="font-display text-xl font-bold leading-tight hover:text-lime">{c.name}</h3></Link>
+                    <Link href={`/communities/${c.slug}`}><h3 className="font-display text-lg font-bold leading-tight hover:text-lime">{c.name}</h3></Link>
                     <p className="line-clamp-2 text-sm text-white/60">{c.description}</p>
                     <div className="mt-auto pt-1"><JoinButton slug={c.slug} policy={c.joinPolicy} membership={c.viewerMembership} size="sm" /></div>
                   </div>
