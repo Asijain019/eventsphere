@@ -48,13 +48,15 @@ export function RoleDetail({ id }: { id: string }) {
 
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <SmartImage src={r.eventPoster || IMG.megaphone} alt="" className="absolute inset-0 h-full w-full opacity-25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/50" />
-        <div className="container-x relative py-12">
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <SmartImage src={r.eventPoster || IMG.megaphone} alt="" className="h-full w-full opacity-25" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/50" />
+        <div className="container-x relative z-10 py-8 sm:py-10 lg:py-12">
           <Link href="/volunteer" className="mb-6 inline-flex items-center gap-2 text-sm text-white/70 hover:text-white"><ArrowLeft size={16} />All roles</Link>
           <span className="inline-flex items-center gap-1 rounded-full bg-lime px-3 py-1 text-xs font-bold text-ink"><Sparkles size={12} />Volunteer</span>
-          <h1 className="section-title mt-4 !text-4xl sm:!text-6xl">{r.title}</h1>
+          <h1 className="section-title mt-4 !text-3xl sm:!text-5xl lg:!text-6xl">{r.title}</h1>
           <p className="mt-3 text-lg text-white/70">at <Link href={`/events/${r.eventSlug}`} className="font-semibold text-white underline-offset-4 hover:underline">{r.eventTitle}</Link></p>
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/65">
             <span className="inline-flex items-center gap-1.5"><CalendarDays size={15} />{formatDate(r.eventStartAt)}, {formatTime(r.eventStartAt)}</span>
@@ -64,8 +66,8 @@ export function RoleDetail({ id }: { id: string }) {
           </div>
         </div>
       </section>
-      <div className="container-x grid gap-8 py-10 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="container-x grid gap-5 py-8 sm:gap-8 sm:py-10 lg:grid-cols-3">
+        <div className="order-last space-y-6 lg:col-span-2 lg:order-first">
           <div className="card space-y-6 p-6 sm:p-8">
             <div><h2 className="font-display text-2xl font-bold">About the role</h2><p className="mt-3 whitespace-pre-wrap text-white/75">{r.description}</p></div>
             {r.responsibilities && <div><h3 className="font-display text-lg font-bold">Responsibilities</h3><p className="mt-1 whitespace-pre-wrap text-white/70">{r.responsibilities}</p></div>}
@@ -74,7 +76,7 @@ export function RoleDetail({ id }: { id: string }) {
             {r.deadline && <p className="text-sm text-white/55">Apply by {formatDate(r.deadline)}, {formatTime(r.deadline)}</p>}
           </div>
         </div>
-        <aside className="space-y-4" aria-label="Application">
+        <aside className="order-first space-y-4 lg:order-last lg:sticky lg:top-24 lg:self-start" aria-label="Application">
           {active && app ? (
             <div className="card space-y-4 p-6">
               <div className="flex items-center justify-between"><h2 className="font-display text-xl font-bold">Your application</h2><StatusChip status={app.status} /></div>

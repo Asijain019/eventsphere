@@ -5,6 +5,7 @@ import { BadgeCheck, Calendar, Clock, ExternalLink, GraduationCap, MapPin, Messa
 import { getCurrentUser } from "@/lib/session";
 import { ApiError } from "@/lib/api";
 import { CATEGORY_POSTER, IMG } from "@/lib/images";
+import { withDistinctEventPosters } from "@/lib/event-card-images";
 import { formatDate, formatTime, initials } from "@/lib/utils";
 import { getEvent, getRelatedEvents } from "@/modules/events/queries";
 import { EventCard } from "@/components/events/EventCard";
@@ -34,7 +35,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
   try { res = await load(params.slug); } catch (e) { console.error("[event page]", e); return <div className="container-x py-20"><ErrorState message="We couldn't load this event. Please try again shortly." /></div>; }
   const { user, event: e } = res;
   if (!e) notFound();
-  const related = await getRelatedEvents(e.id, 3, user).catch(() => []);
+  const related = withDistinctEventPosters(await getRelatedEvents(e.id, 3, user).catch(() => []));
   const images = [e.posterUrl || CATEGORY_POSTER[e.category.slug], ...e.media.filter((m) => m.type === "IMAGE").map((m) => m.url)].filter(Boolean) as string[];
   const v = e.venue; const hasMap = v?.latitude != null && v?.longitude != null && e.mode !== "ONLINE";
   const bbox = hasMap ? `${v!.longitude! - 0.008},${v!.latitude! - 0.005},${v!.longitude! + 0.008},${v!.latitude! + 0.005}` : "";
@@ -112,12 +113,27 @@ export default async function EventPage({ params }: { params: { slug: string } }
           {!hasMap && v && e.mode !== "ONLINE" && <Reveal><h2 className="font-display text-2xl font-bold">Venue</h2><p className="mt-2 text-white/70">{v.name} — {v.address}</p></Reveal>}
 
           {e.schedule && e.schedule.length > 0 && (
-            <Reveal><h2 className="font-display text-2xl font-bold">Schedule</h2>
-              <ol className="mt-5 space-y-0 border-l border-white/15 pl-6">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div><p className="text-xs font-semibold uppercase tracking-[.18em] text-lime">Event rundown</p><h2 className="mt-1 font-display text-2xl font-bold">Schedule</h2></div>
+                <span className="text-xs text-white/45">{e.schedule.length} {e.schedule.length === 1 ? "session" : "sessions"}</span>
+              </div>
+              <ol className="mt-4 grid gap-3 sm:grid-cols-2">
                 {e.schedule.map((s, i) => (
-                  <li key={i} className="relative pb-6 last:pb-0"><span className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-lime ring-4 ring-ink" aria-hidden />
-                    <p className="font-mono text-sm text-lime">{s.time}</p><p className="font-semibold">{s.title}</p>{s.description && <p className="text-sm text-white/60">{s.description}</p>}</li>
-                ))}</ol></Reveal>
+                  <li key={i} className="group relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-ink2/80 p-4 transition-colors hover:border-lime/30">
+                    <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-lime to-violet" aria-hidden />
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 font-mono text-xs font-bold text-white/60 ring-1 ring-white/10">{String(i + 1).padStart(2, "0")}</span>
+                      <div className="min-w-0 flex-1">
+                        <time className="inline-flex rounded-full bg-lime/10 px-2.5 py-1 font-mono text-xs font-semibold text-lime">{s.time}</time>
+                        <h3 className="mt-2 break-words font-display font-bold leading-snug">{s.title}</h3>
+                        {s.description && <p className="mt-1.5 break-words text-sm leading-relaxed text-white/60">{s.description}</p>}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </Reveal>
           )}
 
           {(e.opportunities.length > 0 || e.volunteerRoles.length > 0) && (

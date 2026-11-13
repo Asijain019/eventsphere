@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/session";
 import { DEFAULT_CITY } from "@/lib/constants";
-import { CATEGORY_POSTER, IMG } from "@/lib/images";
+import { IMG } from "@/lib/images";
+import { withDistinctEventPosters } from "@/lib/event-card-images";
 import { listEvents, getMeta } from "@/modules/events/queries";
 import { cleanParams, eventFiltersSchema } from "@/modules/events/schemas";
 import { EventCard } from "@/components/events/EventCard";
@@ -15,22 +16,6 @@ import { Reveal } from "@/components/ui/Reveal";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Explore events" };
 
-const CATEGORY_CARD_IMAGES: Record<string, readonly string[]> = {
-  "music-concerts": [IMG.musicHeadphones, IMG.djHands, IMG.crowd, IMG.stageBW, IMG.djConsole],
-  "cultural-fests": [IMG.cultureWordCloud, IMG.venue, IMG.travelCollage, IMG.classicMicrophone],
-  hackathons: [IMG.hackathon, IMG.collaborativePuzzle, IMG.creativeNetworking, IMG.architecture],
-  technology: [IMG.creativeNetworking, IMG.architecture, IMG.hackathon],
-  sports: [IMG.sportsCollage, IMG.sportsIllustration, IMG.tableTennis, IMG.championshipCelebration],
-  workshops: [IMG.calligraphyWorkshop, IMG.typography, IMG.creativeArtClub, IMG.bookStack, IMG.architecture],
-  entrepreneurship: [IMG.collaborativePuzzle, IMG.creativeNetworking, IMG.studentBrainstorm],
-  "dance-performing-arts": [IMG.openMicPoster, IMG.classicMicrophone, IMG.djHands, IMG.crowd],
-  "photography-art": [IMG.urbanPhotography, IMG.cameraMemories, IMG.vintagePhotography, IMG.creativeArtClub, IMG.travelCollage],
-  gaming: [IMG.gameOn, IMG.musicToggle, IMG.djConsole],
-  literature: [IMG.readingRainbows, IMG.bookStack, IMG.vintagePhotography],
-  "social-impact": [IMG.peopleNetwork, IMG.communityBoard, IMG.studentBrainstorm],
-};
-const ALL_CARD_IMAGES = Object.values(IMG).flatMap((source) => source === null ? [] : [source]);
-
 export default async function EventsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
   const raw = cleanParams(searchParams);
   const parsed = eventFiltersSchema.safeParse(raw);
@@ -39,19 +24,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Recor
   let data: Awaited<ReturnType<typeof listEvents>> | null = null; let meta: Awaited<ReturnType<typeof getMeta>> | null = null; let failed = false;
   try { [data, meta] = await Promise.all([listEvents(filters, user), getMeta(filters.city ?? DEFAULT_CITY)]); } catch (e) { console.error("[events page]", e); failed = true; }
   const city = meta?.cities.find((c) => c.slug === (filters.city ?? DEFAULT_CITY))?.name ?? (filters.city === "all" ? "All cities" : "your city");
-  const usedCardImages = new Set<string>();
-  const cardEvents = data?.items.map((event) => {
-    const poster = event.posterUrl ?? CATEGORY_POSTER[event.categorySlug] ?? "";
-    if (event.isDemo && poster && usedCardImages.has(poster)) {
-      const uniquePoster = CATEGORY_CARD_IMAGES[event.categorySlug]?.find((image) => !usedCardImages.has(image))
-        ?? ALL_CARD_IMAGES.find((image) => !usedCardImages.has(image))
-        ?? poster;
-      usedCardImages.add(uniquePoster);
-      return { ...event, posterUrl: uniquePoster };
-    }
-    if (poster) usedCardImages.add(poster);
-    return event;
-  }) ?? [];
+  const cardEvents = withDistinctEventPosters(data?.items ?? []);
 
   const href = (page: number) => { const p = new URLSearchParams(raw); p.set("page", String(page)); return `/events?${p.toString()}`; };
 

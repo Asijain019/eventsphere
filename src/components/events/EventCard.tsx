@@ -15,7 +15,7 @@ export function EventCard({ event: e, className, favourite }: { event: EventList
   return (
     <Tilt className={className}>
       <article className="group card relative flex h-full flex-col overflow-hidden transition-shadow hover:shadow-glow">
-        <Link href={`/events/${e.slug}`} className="relative block aspect-[16/10] overflow-hidden" aria-label={`View ${e.title}`}>
+        <Link href={`/events/${e.slug}`} className="relative block aspect-video overflow-hidden" aria-label={`View ${e.title}`}>
           <SmartImage src={e.posterUrl || CATEGORY_POSTER[e.categorySlug]} alt={`${e.title} poster`} className="h-full w-full" imgClassName="transition-transform duration-500 group-hover:scale-105" fallbackLabel={e.title} />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
           <span className="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold text-ink" style={{ background: e.categoryColor }}>{e.categoryName}</span>
@@ -23,7 +23,7 @@ export function EventCard({ event: e, className, favourite }: { event: EventList
           <span className="absolute bottom-3 right-3 rounded-full bg-ink/80 px-3 py-1 text-xs font-bold backdrop-blur">{formatPrice(e.feePaise)}</span>
           {e.isDemo && <span className="absolute right-3 top-3 rounded-full border border-white/30 bg-ink/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/70 backdrop-blur">Sample</span>}
         </Link>
-        <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="flex flex-1 flex-col gap-2.5 p-4">
           <h3 className="font-display text-lg font-bold leading-tight"><Link href={`/events/${e.slug}`} className="hover:text-lime">{e.title}</Link></h3>
           <ul className="space-y-1.5 text-sm text-white/65">
             <li className="flex items-center gap-2"><Calendar size={14} className="shrink-0 text-violet-400" />{formatDate(e.startAt, { day: "numeric", month: "short", weekday: "short" })} · {formatTime(e.startAt)}</li>

@@ -12,9 +12,9 @@ export default function VolunteerPage({ searchParams }: { searchParams: { city?:
     <main>
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(214,255,85,.18),transparent_45%),radial-gradient(circle_at_90%_80%,rgba(139,53,255,.4),transparent_50%)]" />
-        <div className="container-x relative grid items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
+        <div className="container-x relative grid items-center gap-8 py-8 md:grid-cols-2 md:py-10 lg:gap-10 lg:py-12">
           <div className="order-2 lg:order-1">
-            <Tilt><SmartImage src={IMG.studentBrainstorm} alt="Students collaborating on a project" className="aspect-[4/3] rounded-3xl shadow-card" fallbackLabel="Volunteer crew" /></Tilt>
+            <Tilt className="mx-auto w-full max-w-md"><SmartImage src={IMG.studentBrainstorm} alt="Students collaborating on a project" className="aspect-[16/10] rounded-3xl shadow-card" fallbackLabel="Volunteer crew" /></Tilt>
           </div>
           <div className="order-1 lg:order-2">
             <p className="chip mb-5 border-lime/40 text-lime">Volunteer connect</p>

@@ -18,23 +18,23 @@ export type RoleItem = {
 export function RoleCard({ r }: { r: RoleItem }) {
   const left = Math.max(0, r.openings - r.acceptedCount);
   return (
-    <Tilt max={6}>
+    <Tilt max={4}>
       <Link href={`/volunteer/${r.id}`} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-glow">
-        <div className="relative aspect-[16/9]">
+        <div className="relative aspect-[2/1]">
           <SmartImage src={r.eventPoster || CATEGORY_POSTER["social-impact"] || IMG.megaphone} alt={`${r.eventTitle} poster`} className="h-full w-full" imgClassName="transition-transform duration-500 group-hover:scale-105" fallbackLabel={r.eventTitle} />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" />
           <span className="absolute bottom-3 right-3 rounded-full bg-lime px-3 py-1 text-xs font-bold text-ink">{left} opening{left === 1 ? "" : "s"}</span>
         </div>
-        <div className="flex flex-1 flex-col gap-2 p-5">
-          <h3 className="font-display text-xl font-bold leading-tight">{r.title}</h3>
-          <p className="text-sm text-white/65">at {r.eventTitle}</p>
+        <div className="flex flex-1 flex-col gap-1.5 p-4">
+          <h3 className="font-display text-lg font-bold leading-tight">{r.title}</h3>
+          <p className="line-clamp-1 text-xs text-white/65">at {r.eventTitle}</p>
           <p className="line-clamp-2 text-sm text-white/55">{r.description}</p>
           {r.skillsRequired.length > 0 && <div className="flex flex-wrap gap-1.5">{r.skillsRequired.slice(0, 3).map((s) => <span key={s} className="chip !py-0.5 !text-[11px]">{s}</span>)}</div>}
-          <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-3 text-xs text-white/55">
-            <span className="inline-flex items-center gap-1"><CalendarDays size={13} />{formatDate(r.eventStartAt)}</span>
-            <span className="inline-flex items-center gap-1"><MapPin size={13} />{r.collegeName ?? r.cityName}</span>
-            {r.shiftLabel && <span className="inline-flex items-center gap-1"><Clock size={13} />{r.shiftLabel}</span>}
-            <span className="inline-flex items-center gap-1"><Users size={13} />{r.applicantCount} applied</span>
+          <div className="mt-auto grid grid-cols-2 gap-x-2 gap-y-1 pt-2 text-[11px] text-white/55">
+            <span className="inline-flex min-w-0 items-center gap-1"><CalendarDays size={12} className="shrink-0" /><span className="truncate">{formatDate(r.eventStartAt)}</span></span>
+            <span className="inline-flex min-w-0 items-center gap-1"><MapPin size={12} className="shrink-0" /><span className="truncate">{r.collegeName ?? r.cityName}</span></span>
+            {r.shiftLabel && <span className="inline-flex min-w-0 items-center gap-1"><Clock size={12} className="shrink-0" /><span className="truncate">{r.shiftLabel}</span></span>}
+            <span className="inline-flex min-w-0 items-center gap-1"><Users size={12} className="shrink-0" /><span className="truncate">{r.applicantCount} applied</span></span>
           </div>
         </div>
       </Link>
@@ -54,9 +54,9 @@ export function RoleBrowser({ city }: { city?: string }) {
   useEffect(() => { void load(); }, [load]);
   const pages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
   return (
-    <section className="container-x py-12" id="roles">
+    <section className="container-x py-8 sm:py-10" id="roles">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by skill">
+        <div className="-mx-4 flex flex-nowrap gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label="Filter by skill">
           <button aria-pressed={!skill} onClick={() => { setSkill(""); setPage(1); }} className={cn("chip transition", !skill && "border-lime bg-lime text-ink")}>Any skill</button>
           {SKILLS.map((s) => <button key={s} aria-pressed={skill === s} onClick={() => { setSkill(s); setPage(1); }} className={cn("chip transition", skill === s && "border-lime bg-lime text-ink")}>{s}</button>)}
         </div>
@@ -64,9 +64,9 @@ export function RoleBrowser({ city }: { city?: string }) {
       </div>
       <div className="mt-8">
         {err && <ErrorState message={err} retry={load} />}
-        {!data && !err && <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-80" />)}</div>}
+        {!data && !err && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-80" />)}</div>}
         {data && data.items.length === 0 && <EmptyState title="No open volunteer roles" body={skill || dq ? "Nothing matches your filters." : "No organizer is looking for volunteers right now. Check back soon."} action={(skill || dq) ? <button className="btn-ghost" onClick={() => { setSkill(""); setQ(""); }}>Clear filters</button> : undefined} />}
-        {data && data.items.length > 0 && <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{data.items.map((r, i) => <Reveal key={r.id} delay={(i % 3) * 0.06}><RoleCard r={r} /></Reveal>)}</div>}
+        {data && data.items.length > 0 && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{data.items.map((r, i) => <Reveal key={r.id} delay={(i % 4) * 0.05}><RoleCard r={r} /></Reveal>)}</div>}
         {data && data.total > data.pageSize && <div className="mt-8 flex items-center justify-center gap-3 text-sm"><button className="btn-ghost" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><span className="text-white/60">Page {page} of {pages}</span><button className="btn-ghost" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next</button></div>}
       </div>
     </section>
