@@ -39,6 +39,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
   const v = e.venue; const hasMap = v?.latitude != null && v?.longitude != null && e.mode !== "ONLINE";
   const bbox = hasMap ? `${v!.longitude! - 0.008},${v!.latitude! - 0.005},${v!.longitude! + 0.008},${v!.latitude! + 0.005}` : "";
   const sameDay = formatDate(e.startAt) === formatDate(e.endAt);
+  const descriptionSummary = e.description.trim().split(/\n\s*\n/)[0];
   const banner = e.status === "DRAFT" ? ["Draft — only you can see this event. Publish it from your organizer dashboard.", "border-orange/50 bg-orange/15 text-orange"]
     : e.status === "CANCELLED" ? ["This event has been cancelled.", "border-red-500/40 bg-red-500/10 text-red-200"]
     : e.status === "POSTPONED" ? ["This event has been postponed. Check announcements for the new date.", "border-orange/50 bg-orange/15 text-orange"] : null;
@@ -49,29 +50,37 @@ export default async function EventPage({ params }: { params: { slug: string } }
       <section className="relative overflow-hidden border-b border-white/10">
         <SmartImage src={images[0]} alt="" className="absolute inset-0 h-full w-full scale-110 opacity-25 blur-2xl" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/80 to-ink" />
-        <div className="container-x relative grid gap-10 py-10 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:py-14">
-          <Reveal><Gallery images={images} title={e.title} /></Reveal>
-          <Reveal delay={0.1} className="space-y-5">
+        <div className="container-x relative grid gap-6 py-7 sm:gap-10 sm:py-10 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:py-14">
+          <div className="order-last lg:order-first"><Gallery images={images} title={e.title} /></div>
+          <div className="order-first space-y-4 sm:space-y-5 lg:order-last">
             <nav aria-label="Breadcrumb" className="text-xs text-white/50"><Link href="/events" className="hover:text-lime">Events</Link> / <Link href={`/events?category=${e.category.slug}`} className="hover:text-lime">{e.category.name}</Link></nav>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full px-3 py-1 text-xs font-bold text-ink" style={{ background: e.category.color }}>{e.category.name}</span>
               <span className="chip">{e.mode === "ONLINE" ? <><Laptop size={12} />Online</> : e.mode === "HYBRID" ? "Hybrid" : "In person"}</span>
               {e.isDemo && <span className="chip">Sample event</span>}
             </div>
-            <h1 className="font-display text-4xl font-bold leading-[.98] sm:text-6xl">{e.title}</h1>
-            <ul className="space-y-2 text-white/80">
+            <h1 className="font-display text-3xl font-bold leading-tight sm:text-6xl sm:leading-[.98]">{e.title}</h1>
+            <ul className="space-y-2 text-sm text-white/80 sm:text-base">
               <li className="flex items-start gap-3"><Calendar size={18} className="mt-0.5 shrink-0 text-violet-400" /><span>{formatDate(e.startAt, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}{!sameDay && <> – {formatDate(e.endAt, { day: "numeric", month: "long" })}</>}</span></li>
               <li className="flex items-start gap-3"><Clock size={18} className="mt-0.5 shrink-0 text-lime" /><span>{formatTime(e.startAt)} – {formatTime(e.endAt)} IST</span></li>
               <li className="flex items-start gap-3"><MapPin size={18} className="mt-0.5 shrink-0 text-magenta" /><span>{e.mode === "ONLINE" ? "Online event" : <>{v?.name ?? "Venue TBA"}{v?.locality ? `, ${v.locality}` : ""}, {e.city.name}</>}</span></li>
             </ul>
+            <div>
+              <p className="line-clamp-3 leading-relaxed text-white/70">{descriptionSummary}</p>
+              <Link href="#about" className="mt-1 inline-block text-sm font-semibold text-lime hover:underline">Full event details</Link>
+            </div>
+            <RegisterCard loggedIn={!!user} registration={e.registration}
+              event={{ id: e.id, slug: e.slug, title: e.title, capacity: e.capacity, confirmedCount: e.confirmedCount, feePaise: e.feePaise, status: e.status, teamsEnabled: e.teamsEnabled, isOwner: e.isOwner,
+                startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />
+            {e.registrationDeadline && e.status === "PUBLISHED" && new Date(e.startAt) > new Date() && <div className="card p-5"><Countdown to={new Date(e.registrationDeadline).toISOString()} /></div>}
             <div className="flex items-center gap-3"><FavouriteButton eventId={e.id} initial={e.favourited} loggedIn={!!user} className="!h-12 !w-12" /><span className="text-sm text-white/60">Save for later</span></div>
-          </Reveal>
+          </div>
         </div>
       </section>
 
-      <div className="container-x grid gap-10 py-10 lg:grid-cols-[1fr_380px]">
-        <div className="order-last min-w-0 space-y-12 lg:order-first">
-          <Reveal><h2 className="font-display text-2xl font-bold">About this event</h2>
+      <div className="container-x py-10">
+        <div className="min-w-0 space-y-12 lg:max-w-4xl">
+          <Reveal><h2 id="about" className="font-display text-2xl font-bold">About this event</h2>
             <p className="mt-3 whitespace-pre-line leading-relaxed text-white/75">{e.description}</p>
             {e.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{e.tags.map((t) => <Link key={t} href={`/events?q=${encodeURIComponent(t)}`} className="chip hover:bg-white/10">#{t}</Link>)}</div>}
           </Reveal>
@@ -138,13 +147,6 @@ export default async function EventPage({ params }: { params: { slug: string } }
               <span className="btn-ghost shrink-0">Join the conversation</span></Link></Reveal>
           )}
         </div>
-
-        <aside className="order-first space-y-5 lg:sticky lg:top-20 lg:order-last lg:self-start">
-          <RegisterCard loggedIn={!!user} registration={e.registration}
-            event={{ id: e.id, slug: e.slug, title: e.title, capacity: e.capacity, confirmedCount: e.confirmedCount, feePaise: e.feePaise, status: e.status, teamsEnabled: e.teamsEnabled, isOwner: e.isOwner,
-              startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />
-          {e.registrationDeadline && e.status === "PUBLISHED" && new Date(e.startAt) > new Date() && <div className="card p-5"><Countdown to={new Date(e.registrationDeadline).toISOString()} /></div>}
-        </aside>
       </div>
 
       {related.length > 0 && (

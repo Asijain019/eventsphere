@@ -2,18 +2,23 @@
 
 [![CI](https://github.com/Asijain019/eventsphere/actions/workflows/ci.yml/badge.svg)](https://github.com/Asijain019/eventsphere/actions/workflows/ci.yml)
 
-EventSphere helps students discover campus and city events, register individually or as teams, and connect with other attendees. Jaipur is the default city.
+**Discover. Experience. Connect.**
 
-**Repository:** [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere)<br>
-**Live application:** [eventsphere-rosy-nine.vercel.app](https://eventsphere-rosy-nine.vercel.app/)
+EventSphere is a city-wide and campus event platform where students can discover events, register individually or as teams, volunteer, find collaborators, and connect with other attendees.
+
+**Live demo:** [eventsphere-rosy-nine.vercel.app](https://eventsphere-rosy-nine.vercel.app/)<br>
+**Repository:** [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere)
+
+> The live demo is populated with fictional sample events and accounts.
 
 ## Features
 
-- Search and filter events by city, college, category, date, and price.
-- Register individually or as a team; capacity and waitlists are enforced.
-- Create events and manage registrations, volunteers, participation, and check-in.
-- Join communities, find teammates, and connect with attendees.
-- Role-based authentication, profiles, and in-app notifications.
+- **Event discovery:** Search and filter by city, college, category, date, price, and format. View event posters, schedules, venue details, capacity, and registration status.
+- **Registration:** Register individually or as a team. Capacity checks, waitlists, and registration status are enforced by the server.
+- **Organizer tools:** Create, edit, publish, and manage events, registrations, volunteers, participation applications, announcements, and check-in.
+- **Teams and participation:** Find teammates, create or join teams, and apply for performer, contestant, or volunteer roles.
+- **Communities and connections:** Join interest or event communities, post and comment, and discover attendees by choice. Messaging is available after a connection request is accepted.
+- **Accounts and notifications:** Role-based access, profiles, favourites, and in-app notifications.
 
 ## Technology
 
@@ -21,9 +26,23 @@ Next.js 14 · TypeScript · Tailwind CSS · PostgreSQL · Drizzle ORM · Vitest 
 
 ## Architecture
 
+EventSphere is a three-tier modular monolith: a Next.js presentation layer, domain modules and API handlers, and PostgreSQL persistence.
+
 ![EventSphere architecture](public/assets/ref/architecture.png)
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for implementation details.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for module boundaries and design decisions.
+
+## Project structure
+
+```text
+src/app/          Next.js pages and API routes
+src/modules/      Domain services, queries, and validation
+src/components/   Shared and feature-specific UI
+src/db/           PostgreSQL schema and demo data
+drizzle/          SQL migrations
+public/assets/    Static images and media
+docs/             Architecture, API, testing, and workflow guides
+```
 
 ## Run locally
 
@@ -36,7 +55,7 @@ npm ci
 Copy-Item .env.example .env
 ```
 
-Set `AUTH_SECRET` to a random value in `.env` (generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`). The example environment uses the local PostgreSQL settings from the development Compose file.
+Set `AUTH_SECRET` in `.env` to a new random value (generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`). The example environment is configured for the local PostgreSQL service.
 
 ```powershell
 docker compose -f docker-compose.dev.yml up -d
@@ -45,7 +64,7 @@ npm run db:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). The seed command adds fictional demo records and accounts; omit it if you want an empty database.
 
 ## Docker
 
@@ -56,35 +75,6 @@ docker compose up --build
 ```
 
 The app is available at [http://localhost:3000](http://localhost:3000). To rebuild the app container after changing code or public assets, run `docker compose up --build -d app`.
-
-## Deploy to Vercel
-
-1. Create a PostgreSQL database with a provider such as Neon or Supabase. Keep its connection string private.
-2. In Vercel, import `Asijain019/eventsphere` as a new project. Use the repository root as the project root and select Node.js 20.
-3. Create a Vercel Blob store for user-uploaded images.
-4. Add these environment variables in **Project Settings → Environment Variables** for the environments you use:
-
-   | Variable | Value |
-   |---|---|
-   | `DATABASE_URL` | PostgreSQL connection string; use SSL for hosted databases |
-   | `AUTH_SECRET` | Random secret generated with the command above |
-   | `NEXT_PUBLIC_APP_URL` | Your Vercel production URL, e.g. `https://<project>.vercel.app` |
-   | `NEXT_PUBLIC_DEFAULT_CITY` | `jaipur` |
-   | `STORAGE_PROVIDER` | `blob` |
-   | `BLOB_READ_WRITE_TOKEN` | Token from the Vercel Blob store |
-
-5. Apply the database migrations once from the repository root. In PowerShell:
-
-   ```powershell
-   $env:DATABASE_URL = "<production PostgreSQL connection string>"
-   npm ci
-   npm run db:migrate
-   Remove-Item Env:DATABASE_URL
-   ```
-
-6. Deploy from Vercel or push to the connected GitHub branch. Check that `https://<project>.vercel.app/api/health` returns a healthy response. If you change `NEXT_PUBLIC_APP_URL`, redeploy so the updated value is included in the client build.
-
-Do not run production migrations as part of the Vercel build. Seed demo data only when setting up a demo instance.
 
 ## Checks
 
@@ -97,4 +87,4 @@ npm run build
 
 ## Documentation
 
-[API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [Testing](docs/TESTING.md) · [Git workflow](docs/GIT_WORKFLOW.md)
+[API](docs/API.md) · [Architecture](docs/ARCHITECTURE.md) · [Testing](docs/TESTING.md) · [Git workflow](docs/GIT_WORKFLOW.md)
