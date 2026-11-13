@@ -48,7 +48,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
     <article>
       {banner && <div className={`border-b px-4 py-3 text-center text-sm font-medium ${banner[1]}`} role="status"><FileEdit size={14} className="mr-2 inline" />{banner[0]}{e.isOwner && <Link href="/organizer" className="ml-3 underline">Open dashboard</Link>}</div>}
       <section className="relative isolate overflow-hidden border-b border-white/10">
-        <SmartImage src={images[0]} alt="" className="pointer-events-none absolute inset-0 z-0 h-full w-full scale-110 opacity-25 blur-2xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-0 scale-110 bg-cover bg-center opacity-25 blur-2xl" style={images[0] ? { backgroundImage: `url(${JSON.stringify(images[0])})` } : undefined} />
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-ink/40 via-ink/80 to-ink" />
         <div className="container-x relative z-10 grid gap-4 py-4 sm:gap-8 sm:py-7 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-10 lg:py-14">
           <div className="space-y-3 sm:space-y-4 lg:order-last">
@@ -64,13 +64,15 @@ export default async function EventPage({ params }: { params: { slug: string } }
               <li className="flex items-start gap-3"><Clock size={18} className="mt-0.5 shrink-0 text-lime" /><span>{formatTime(e.startAt)} – {formatTime(e.endAt)} IST</span></li>
               <li className="flex items-start gap-3"><MapPin size={18} className="mt-0.5 shrink-0 text-magenta" /><span>{e.mode === "ONLINE" ? "Online event" : <>{v?.name ?? "Venue TBA"}{v?.locality ? `, ${v.locality}` : ""}, {e.city.name}</>}</span></li>
             </ul>
+            <div className="[&>div:first-child]:!p-4 [&>div:first-child>div.relative]:!space-y-3">
+              <RegisterCard loggedIn={!!user} registration={e.registration}
+                event={{ id: e.id, slug: e.slug, title: e.title, capacity: e.capacity, confirmedCount: e.confirmedCount, feePaise: e.feePaise, status: e.status, teamsEnabled: e.teamsEnabled, isOwner: e.isOwner,
+                  startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />
+            </div>
             <div>
               <p className="line-clamp-2 leading-relaxed text-white/70 sm:line-clamp-3">{descriptionSummary}</p>
               <Link href="#about" className="mt-1 inline-block text-sm font-semibold text-lime hover:underline">Full event details</Link>
             </div>
-            <RegisterCard loggedIn={!!user} registration={e.registration}
-              event={{ id: e.id, slug: e.slug, title: e.title, capacity: e.capacity, confirmedCount: e.confirmedCount, feePaise: e.feePaise, status: e.status, teamsEnabled: e.teamsEnabled, isOwner: e.isOwner,
-                startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />
             {e.registrationDeadline && e.status === "PUBLISHED" && new Date(e.startAt) > new Date() && <div className="card p-5"><Countdown to={new Date(e.registrationDeadline).toISOString()} /></div>}
             <div className="flex items-center gap-3"><FavouriteButton eventId={e.id} initial={e.favourited} loggedIn={!!user} className="!h-12 !w-12" /><span className="text-sm text-white/60">Save for later</span></div>
           </div>
