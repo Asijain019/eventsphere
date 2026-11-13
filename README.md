@@ -32,11 +32,7 @@ Demonstrate a realistic, production-style system: a **three-tier modular monolit
 
 ## 4. Screenshots
 
-> PLACEHOLDER — add screenshots to `docs/screenshots/` and link them here after running the app (home, explore, event detail, organizer dashboard, communities, messages).
-
-| Home | Explore | Event detail |
-|---|---|---|
-| _screenshot_ | _screenshot_ | _screenshot_ |
+Screenshots are not currently included in the repository. Run the application using the setup instructions below to view the home, discovery, event, organizer, community and messaging pages.
 
 ## 5. Technology stack
 
@@ -223,7 +219,7 @@ npm run build && npm start
 1. **quality** job: checkout → Node 20 with npm cache → `npm ci` → `npm run lint` → `npm run typecheck` → `npm test` → `npm run build` (dummy env values; no DB needed).
 2. **docker** job: Buildx build of the production image (`push: false`) with GitHub Actions layer cache, then a smoke check (non-root user, migration files present).
 
-Deployment is **not** part of the workflow: Vercel's GitHub integration deploys `main` (production) and every PR (preview). CI status is shown on each PR.
+Deployment is **not** part of this workflow. A Vercel Git integration can be configured separately for production and preview deployments.
 
 ## 16. Deployment (Vercel)
 
@@ -242,10 +238,8 @@ Migrations are deliberately run manually (not in the Vercel build) so that a bad
 
 | | |
 |---|---|
-| Live URL | **PLACEHOLDER — add after deploying to Vercel** (`https://<project>.vercel.app`) |
-| GitHub repository | **PLACEHOLDER — add after creating the repo** (`https://github.com/<user>/eventsphere`) |
-
-No deployment or repository push has been performed by the tooling that generated this project.
+| Live URL | Not deployed |
+| GitHub repository | [Asijain019/eventsphere](https://github.com/Asijain019/eventsphere) |
 
 ### Demo accounts
 
@@ -262,22 +256,19 @@ All use password `Password123!` (seeded by `npm run db:seed`).
 
 The institutions are real names used only for realism; **every event, person, post, message and registration in the seed is fictional sample data** (events carry `is_demo = true`) and implies no affiliation with those institutions. Venue coordinates are approximate. Remove demo data before any real launch.
 
-### Team contributions
+### Codebase map
 
-Work division follows the project proposal (Section 13). Replace the names with your own and keep your real git history as evidence.
-
-| Member | Ownership (from the proposal) | Where it lives in the code |
-|---|---|---|
-| Member 1 — _name_ | Frontend & attendee experience: auth screens, profile, city/college selection, event discovery/filter, event detail, attendee registration, saved events, privacy settings | `src/app/(pages)`, `src/components/events`, `src/components/home`, `src/components/profile` |
-| Member 2 — _name_ | Backend, DB & event operations: schema/migrations, auth & roles, event CRUD/publishing, registration/capacity, teams, contestant applications, volunteer workflows | `src/db`, `modules/identity`, `modules/events`, `modules/organizer`, `modules/participation`, `modules/volunteer` |
-| Member 3 — _name_ | Communities, social & DevOps: communities, connections, gated messaging, organizer dashboard integration, notifications, Docker, GitHub Actions, deployment, README | `modules/communities`, `modules/connections`, `modules/messaging`, `modules/notifications`, `Dockerfile`, `.github/`, `docs/` |
-
-All members share architecture/ERD review, API contracts, code review, testing and the presentation.
+| Feature area | Main implementation |
+|---|---|
+| Attendee experience | `src/app`, `src/components/home`, `src/components/events`, `src/components/profile` |
+| Identity and event operations | `src/modules/identity`, `src/modules/events`, `src/modules/organizer`, `src/db` |
+| Participation and communities | `src/modules/participation`, `src/modules/volunteer`, `src/modules/communities`, `src/modules/connections`, `src/modules/messaging` |
+| Delivery and documentation | `tests`, `Dockerfile`, `.github/workflows`, `docs` |
 
 ## 18. Known limitations & future enhancements
 
 Limitations (honest list):
-- **Docker image and CI workflow were validated statically** (`docker compose config`, YAML parse, migrations + seed against a real PostgreSQL 16 and PGlite). The Docker daemon was unavailable where this was written, so `docker compose up --build` and the GitHub Actions run have **not** been executed — run them once locally/on GitHub.
+- Local validation covers lint, type-checking, unit/integration tests, production build and Docker image build/smoke checks. A GitHub Actions run still requires a push to the configured repository.
 - Paid events show a price but there is **no payment gateway** (registration is free for the MVP; a payment sandbox is a future integration).
 - Local-disk uploads (`STORAGE_PROVIDER=local`) are for development; in the standalone Docker server files added at runtime may only be served after a restart. Use Vercel Blob in production.
 - Rate limiting and the notification queue are **in-process** (single instance). Use Redis/BullMQ to scale out.
@@ -293,6 +284,3 @@ All supplied images are in `public/assets/ref/` and mapped in `src/lib/images.ts
 ## Further documentation
 
 [Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Git workflow](docs/GIT_WORKFLOW.md) · [Deployment](docs/DEPLOYMENT.md) · [Testing](docs/TESTING.md) · [System design notes](docs/SYSTEM_DESIGN_NOTES.md)
-
-## Note on reference images
-Three images named in the original brief were not in the supplied project files (student brainstorming photo, event passes/badges photo, EventEase site screenshot). The UI shows designed gradient fallbacks there. To activate them, add files named `student-brainstorm.jpg`, `event-passes.jpg` and `eventease-ref.jpg` to `public/assets/ref/`.

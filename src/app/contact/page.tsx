@@ -12,7 +12,7 @@ export default function ContactPage() {
         <p className="mt-4 text-white/65">Questions, feedback or want to host an event? Drop us a note.</p>
         <ul className="mt-8 space-y-4 text-sm text-white/70">
           <li className="flex gap-3"><MapPin className="shrink-0 text-lime" size={18} /> Jaipur, Rajasthan, India</li>
-          <li className="flex gap-3"><Mail className="shrink-0 text-lime" size={18} /> Replace with your project email before submission</li>
+          <li className="flex gap-3"><Mail className="shrink-0 text-lime" size={18} /> Direct email support is not configured for this demo</li>
           <li className="flex gap-3 rounded-2xl border border-violet/40 bg-violet/10 p-4"><Info className="shrink-0 text-violet-400" size={18} /> This form is a demo inbox: your message is validated and logged on the server but not stored or emailed.</li>
         </ul>
       </div>

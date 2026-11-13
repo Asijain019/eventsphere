@@ -23,7 +23,7 @@ export function ContactForm() {
         <select id="c-topic" name="topic" className="input" defaultValue="general"><option value="general">General question</option><option value="organizer">Hosting an event</option><option value="bug">Report a problem</option><option value="partnership">Partnership</option></select></div>
       <div><label className="label" htmlFor="c-msg">Message</label><textarea id="c-msg" name="message" required minLength={10} rows={5} className="input" /></div>
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
-      {state.kind === "done" && <Alert kind="success">Thanks! Your message was received by the demo inbox. This is a college project, so nobody is actually emailed.</Alert>}
+      {state.kind === "done" && <Alert kind="success">The demo accepted your message, but it was only logged on the server. It was not stored or emailed.</Alert>}
       {state.kind === "error" && <Alert>{state.msg}</Alert>}
       <button className="btn-primary" disabled={state.kind === "sending"}><Send size={16} /> {state.kind === "sending" ? "Sending…" : "Send message"}</button>
     </form>

@@ -1,6 +1,6 @@
 /**
- * Central map of the user-supplied reference images in /public/assets/ref.
- * Keys that are `null` were NOT in the project files; <SmartImage> falls back to a branded gradient until you add the file.
+ * Central map of the supplied reference images in /public/assets/ref.
+ * Missing reference images are null so <SmartImage> can render its branded fallback without a failed request.
  */
 const R = "/assets/ref";
 export const IMG = {
@@ -16,10 +16,9 @@ export const IMG = {
   venue: `${R}/event-venue.jpg`,
   stageBW: `${R}/concert-bw.jpg`,
   architecture: `${R}/architecture.png`,
-  // Not supplied in the project files — drop these filenames into public/assets/ref/ to activate:
-  studentBrainstorm: `${R}/student-brainstorm.jpg`,
-  passes: `${R}/event-passes.jpg`,
-  eventEase: `${R}/eventease-ref.jpg`,
+  studentBrainstorm: null,
+  passes: null,
+  eventEase: null,
 } as const;
 
 /** Default poster per category slug, used by seed data and as fallback when an event has no poster. */

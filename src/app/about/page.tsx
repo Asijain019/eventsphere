@@ -10,10 +10,10 @@ import { IMG } from "@/lib/images";
 export const metadata: Metadata = { title: "About", description: "The story, architecture and team behind EventSphere." };
 
 const STACK = ["Next.js 14 (App Router)", "TypeScript", "Tailwind CSS", "Framer Motion", "PostgreSQL", "Drizzle ORM", "Zod", "JWT sessions + bcrypt", "Vitest", "Docker", "GitHub Actions", "Vercel"];
-const TEAM = [
-  { n: "Member 1", r: "Frontend & UX", d: "Design system, landing page, event discovery and attendee flows. Replace with your name and role from the proposal." },
-  { n: "Member 2", r: "Backend & Database", d: "Schema, APIs, authentication, registration transactions and social-graph rules." },
-  { n: "Member 3", r: "DevOps & Documentation", d: "Docker, GitHub Actions CI/CD, Vercel deployment, testing and the README." },
+const AREAS = [
+  { n: "Attendee experience", r: "Discovery & participation", d: "Event discovery, registration, teams, profiles and attendee-facing flows." },
+  { n: "Platform services", r: "APIs & data", d: "Authentication, event operations, communities, applications and social features." },
+  { n: "Operations", r: "Testing & delivery", d: "Database migrations, automated checks, container builds and deployment configuration." },
 ];
 
 export default function AboutPage() {
@@ -39,7 +39,7 @@ export default function AboutPage() {
       <section className="container-x py-12">
         <SectionHead kicker="Architecture" title={<>A three-tier <span className="text-lime">modular monolith.</span></>} sub="One deployable backend with clear internal module boundaries: simple to run and explain today, easy to split into services later." />
         <div className="mb-8 grid gap-4 md:grid-cols-3">
-          {[[Layers, "Three tiers", "Presentation, application (edge/API plus modules) and data layers, each with one job."], [Boxes, "Modular monolith", "Six modules own their tables and logic and talk through service functions, not through each other's internals."], [Database, "Right-sized data", "PostgreSQL for truth, Redis for cache and limits, object storage for files, a queue for notifications."]].map(([I, t, d]: any) => (
+          {[[Layers, "Three tiers", "Presentation, application (API plus modules) and data layers, each with one job."], [Boxes, "Modular monolith", "Domain modules keep business logic organized behind service functions."], [Database, "Right-sized data", "PostgreSQL for persistence, configurable object storage for uploads, and in-process rate limiting and notifications."]].map(([I, t, d]: any) => (
             <Reveal key={t}><div className="card h-full p-5"><I className="mb-3 text-violet-400" /><p className="font-display text-lg font-bold">{t}</p><p className="mt-1 text-sm text-white/60">{d}</p></div></Reveal>
           ))}
         </div>
@@ -59,9 +59,9 @@ export default function AboutPage() {
       </section>
 
       <section className="container-x py-12">
-        <SectionHead kicker="The team" title={<>Three students, <span className="text-lime">one platform.</span></>} sub="Placeholders: swap in real names and responsibilities before your presentation." />
+        <SectionHead kicker="How it is built" title={<>One platform, <span className="text-lime">three workstreams.</span></>} sub="The project brings together product experience, platform services and reliable delivery." />
         <div className="grid gap-4 md:grid-cols-3">
-          {TEAM.map((m, i) => (
+          {AREAS.map((m, i) => (
             <Reveal key={m.n} delay={i * 0.08}><div className="card h-full p-6">
               <div className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-brand-gradient font-display text-xl font-black">{i + 1}</div>
               <p className="font-display text-xl font-bold">{m.n}</p><p className="text-sm font-semibold text-lime">{m.r}</p><p className="mt-2 text-sm text-white/60">{m.d}</p>

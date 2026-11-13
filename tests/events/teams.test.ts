@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { setupTestDb, makeUser, makeEvent } from "../helpers/db";
 import { createTeam, requestToJoin, respondToRequest, getTeam, listTeams, leaveTeam, inviteUser, respondToInvite } from "@/modules/events/teams";
 import { registerForEvent, registerTeam } from "@/modules/events/registration";
+import { registrations } from "@/db";
 
 let d: Awaited<ReturnType<typeof setupTestDb>>;
 let org: Awaited<ReturnType<typeof makeUser>>;
@@ -57,6 +58,19 @@ describe("teams", () => {
     await registerForEvent(a.id, ev.id);
     expect(await code(registerTeam(cap.id, team.id))).toBe("MEMBER_ALREADY_REGISTERED");
     expect(await code(registerTeam(a.id, team.id))).toBe("FORBIDDEN");
+  });
+  it("rejects registration through an event route that does not own the team", async () => {
+    const [captain, member] = await Promise.all([makeUser(d), makeUser(d)]);
+    const team = await createTeam(captain.id, ev.id, { name: "Route Guard Team" });
+    await requestToJoin(member.id, team.id);
+    const request = (await getTeam(team.id, captain.id)).requests[0];
+    await respondToRequest(captain.id, team.id, request.memberId, "accept");
+
+    const otherEvent = await makeEvent(d, org.id, { teamsEnabled: true, minTeamSize: 2, maxTeamSize: 3 });
+    await expect(registerForEvent(captain.id, otherEvent.id, { type: "TEAM", teamId: team.id }))
+      .rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect((await d.select().from(registrations)).filter((r) => r.teamId === team.id)).toHaveLength(0);
+    expect((await getTeam(team.id)).status).toBe("FORMING");
   });
   it("invites, leave, captain handover", async () => {
     const [cap, a, b] = await Promise.all([makeUser(d), makeUser(d), makeUser(d)]);

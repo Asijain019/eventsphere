@@ -38,7 +38,6 @@ export function CommunitiesSection({ communities }: { communities: HomeCommunity
         <Reveal>
           <Tilt max={5}>
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
-              {/* student-brainstorm.jpg was not supplied: SmartImage shows the branded gradient until the file is added to public/assets/ref */}
               <SmartImage src={IMG.studentBrainstorm} alt="Students brainstorming together" className="aspect-[4/3] w-full" fallbackLabel="Students collaborating" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
               <div className="absolute inset-x-4 bottom-4 glass !rounded-2xl p-4">

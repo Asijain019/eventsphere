@@ -47,7 +47,7 @@ export async function registerForEvent(userId: string, eventId: string, input: {
   const type = input.type ?? "ATTENDEE";
   if (type === "TEAM") {
     if (!input.teamId) throw badRequest("teamId is required for team registration");
-    return registerTeam(userId, input.teamId);
+    return registerTeam(userId, input.teamId, eventId);
   }
   const result = await db.transaction(async (tx) => {
     const ev = await lockEvent(tx, eventId); // serialises concurrent registrations for this event
@@ -69,13 +69,14 @@ export async function registerForEvent(userId: string, eventId: string, input: {
 }
 
 /** Captain registers their whole team. All accepted members get a TEAM registration. */
-export async function registerTeam(captainId: string, teamId: string) {
+export async function registerTeam(captainId: string, teamId: string, expectedEventId?: string) {
   const [pre] = await db.select({ eventId: teams.eventId }).from(teams).where(eq(teams.id, teamId)).limit(1);
   if (!pre) throw notFound("Team not found");
   const result = await db.transaction(async (tx) => {
     const ev = await lockEvent(tx, pre.eventId);
     const [team] = await tx.select().from(teams).where(eq(teams.id, teamId)).for("update");
     if (!team) throw notFound("Team not found");
+    if (expectedEventId && team.eventId !== expectedEventId) throw badRequest("This team does not belong to the requested event");
     if (team.captainId !== captainId) throw forbidden("Only the team captain can register the team");
     if (!ev.teamsEnabled) throw badRequest("This event does not use teams");
     if (team.status === "REGISTERED") throw conflict("This team is already registered", "ALREADY_REGISTERED");

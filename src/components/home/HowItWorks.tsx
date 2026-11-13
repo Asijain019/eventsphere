@@ -25,7 +25,6 @@ export function HowItWorks() {
               <p className="mt-2 text-sm text-white/60">{s.d}</p>
               {i === 1 && (
                 <div className="relative mt-5 h-28">
-                  {/* event-passes.jpg not supplied: designed CSS pass sits on top; the photo shows through once the file is added */}
                   <SmartImage src={IMG.passes} alt="Event passes and badges" className="absolute inset-0 rounded-xl opacity-60" />
                   <div className="absolute inset-x-3 top-3 flex rotate-[-3deg] overflow-hidden rounded-lg bg-paper text-ink shadow-card">
                     <div className="flex-1 p-3"><p className="font-display text-xs font-black uppercase">EventSphere pass</p><p className="text-[10px] text-ink/60">ES-DEMO · Admit one</p></div>
