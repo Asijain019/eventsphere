@@ -70,7 +70,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
       </section>
 
       <div className="container-x grid gap-10 py-10 lg:grid-cols-[1fr_380px]">
-        <div className="min-w-0 space-y-12">
+        <div className="order-last min-w-0 space-y-12 lg:order-first">
           <Reveal><h2 className="font-display text-2xl font-bold">About this event</h2>
             <p className="mt-3 whitespace-pre-line leading-relaxed text-white/75">{e.description}</p>
             {e.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{e.tags.map((t) => <Link key={t} href={`/events?q=${encodeURIComponent(t)}`} className="chip hover:bg-white/10">#{t}</Link>)}</div>}
@@ -139,7 +139,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
           )}
         </div>
 
-        <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+        <aside className="order-first space-y-5 lg:sticky lg:top-20 lg:order-last lg:self-start">
           <RegisterCard loggedIn={!!user} registration={e.registration}
             event={{ id: e.id, slug: e.slug, title: e.title, capacity: e.capacity, confirmedCount: e.confirmedCount, feePaise: e.feePaise, status: e.status, teamsEnabled: e.teamsEnabled, isOwner: e.isOwner,
               startAt: new Date(e.startAt).toISOString(), registrationDeadline: e.registrationDeadline ? new Date(e.registrationDeadline).toISOString() : null }} />

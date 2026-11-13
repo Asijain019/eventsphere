@@ -6,10 +6,12 @@ import { createSessionToken, setSessionCookie } from "@/lib/session";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { ApiError } from "@/lib/api";
 import { registerSchema } from "@/modules/identity/schemas";
+import { validateRegistrationReferences } from "@/modules/identity/registration";
 
 export const POST = route(async (req) => {
   if (!rateLimit(`register:${clientIp(req)}`, 10, 60_000)) throw new ApiError(429, "Too many attempts, try again shortly", "RATE_LIMIT");
   const body = await parseBody(req, registerSchema);
+  await validateRegistrationReferences(body.cityId, body.collegeId);
   const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, body.email)).limit(1);
   if (existing) throw conflict("An account with this email already exists", "EMAIL_TAKEN");
   const [u] = await db.insert(users).values({

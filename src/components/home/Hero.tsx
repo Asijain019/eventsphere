@@ -27,7 +27,7 @@ export function Hero({ cities, city, cityName, stats }: { cities: { slug: string
         <svg className="absolute bottom-10 left-[40%] hidden animate-float text-lime [--r:-8deg] [animation-delay:2s] md:block" width="54" height="54" viewBox="0 0 54 54" fill="currentColor"><path d="M27 0l5 19 22 8-22 8-5 19-5-19L0 27l22-8z" /></svg>
       </div>
 
-      <div className="container-x relative grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
+      <div className="container-x relative grid items-center gap-8 lg:grid-cols-[1.05fr_.95fr]">
         <div>
           <motion.div initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-wrap items-center gap-3">
             <span className="chip border-lime/40 text-lime"><Sparkles size={12} /> Discover. Experience. Connect.</span>
@@ -61,18 +61,18 @@ export function Hero({ cities, city, cityName, stats }: { cities: { slug: string
         </div>
 
         {/* layered interactive collage */}
-        <Tilt max={6} className="relative mx-auto aspect-[4/5] w-full max-w-[520px]">
+        <Tilt max={6} className="relative mx-auto aspect-[4/5] w-full max-w-[520px] sm:aspect-[5/4]">
           <motion.div style={{ y: y1 }} className="absolute left-0 top-0 h-[62%] w-[68%] [transform:translateZ(30px)]">
-            <SmartImage src={IMG.crowd} alt="Crowd at a live concert under stage lights" className="h-full w-full rounded-[2rem] rotate-[-3deg] shadow-card ring-1 ring-white/20" priority />
+            <SmartImage src={IMG.studentBrainstorm} alt="Students sharing ideas at a campus gathering" className="h-full w-full rounded-[2rem] rotate-[-3deg] shadow-card ring-1 ring-white/20" priority />
           </motion.div>
           <motion.div style={{ y: y2 }} className="absolute right-0 top-[12%] h-[44%] w-[44%] [transform:translateZ(60px)]">
-            <SmartImage src={IMG.djConsole} alt="Halftone DJ on an oversized console" className="h-full w-full rounded-[1.6rem] rotate-[5deg] shadow-pop ring-2 ring-lime" priority />
+            <SmartImage src={IMG.vintagePhotography} alt="Vintage camera and photographs arranged on a table" className="h-full w-full rounded-[1.6rem] rotate-[5deg] shadow-pop ring-2 ring-lime" priority />
           </motion.div>
           <motion.div style={{ y: y1 }} className="absolute bottom-0 left-[8%] h-[40%] w-[46%] [transform:translateZ(50px)]">
-            <SmartImage src={IMG.sportsCollage} alt="Black and white athletes on coloured blocks" className="h-full w-full rounded-[1.6rem] rotate-[3deg] shadow-card ring-1 ring-white/20" priority />
+            <SmartImage src={IMG.musicHeadphones} alt="Music-themed headphones poster" className="h-full w-full rounded-[1.6rem] rotate-[3deg] shadow-card ring-1 ring-white/20" priority />
           </motion.div>
           <motion.div style={{ y: y2 }} className="absolute bottom-[4%] right-[2%] h-[46%] w-[40%] [transform:translateZ(40px)]">
-            <SmartImage src={IMG.hackathon} alt="Hackathon poster with a pixel cursor" className="h-full w-full rounded-[1.6rem] rotate-[-4deg] shadow-card ring-1 ring-white/20" priority />
+            <SmartImage src={IMG.readingRainbows} alt="Colorful illustration celebrating books and reading" className="h-full w-full rounded-[1.6rem] rotate-[-4deg] shadow-card ring-1 ring-white/20" priority />
           </motion.div>
           <div className="absolute left-1/2 top-[52%] grid h-24 w-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-lime text-center font-display text-xs font-black uppercase leading-tight text-ink [transform:translateZ(90px)]">
             <span className="animate-float">Live<br />in {cityName.slice(0, 10)}</span>

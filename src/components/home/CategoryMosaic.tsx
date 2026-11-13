@@ -9,18 +9,18 @@ import { IMG } from "@/lib/images";
 type Tile = { img?: string; span: string; light?: boolean; pos?: string };
 /** Mosaic layout: photo-led tiles use reference images; light (white-background) art sits on paper panels. */
 const TILES: Record<string, Tile> = {
-  "music-concerts": { img: IMG.crowd, span: "sm:col-span-2 sm:row-span-2 min-h-[320px]" },
-  "cultural-fests": { img: IMG.venue, span: "sm:col-span-2 min-h-[170px]" },
+  "music-concerts": { img: IMG.musicHeadphones, span: "sm:col-span-2 sm:row-span-2 min-h-[320px]" },
+  "cultural-fests": { img: IMG.cultureWordCloud, span: "sm:col-span-2 min-h-[170px]", light: true },
   hackathons: { img: IMG.hackathon, span: "sm:row-span-2 min-h-[320px]", pos: "object-top" },
-  technology: { span: "min-h-[150px]" },
-  sports: { img: IMG.sportsIllustration, span: "sm:col-span-2 min-h-[190px]", light: true },
-  workshops: { img: IMG.typography, span: "min-h-[150px]", light: true },
-  entrepreneurship: { span: "min-h-[150px]" },
-  "dance-performing-arts": { img: IMG.stageBW, span: "min-h-[150px]" },
-  "photography-art": { img: IMG.megaphone, span: "min-h-[150px]", light: true, pos: "object-top" },
-  gaming: { img: IMG.djConsole, span: "min-h-[150px]" },
-  literature: { span: "min-h-[150px]" },
-  "social-impact": { span: "min-h-[150px]" },
+  technology: { img: IMG.creativeNetworking, span: "min-h-[150px]" },
+  sports: { img: IMG.tableTennis, span: "sm:col-span-2 min-h-[190px]", light: true },
+  workshops: { img: IMG.calligraphyWorkshop, span: "min-h-[150px]" },
+  entrepreneurship: { img: IMG.collaborativePuzzle, span: "min-h-[150px]" },
+  "dance-performing-arts": { img: IMG.openMicPoster, span: "min-h-[150px]" },
+  "photography-art": { img: IMG.creativeArtClub, span: "min-h-[150px]", light: true, pos: "object-top" },
+  gaming: { img: IMG.gameOn, span: "min-h-[150px]", light: true },
+  literature: { img: IMG.readingRainbows, span: "min-h-[150px]" },
+  "social-impact": { img: IMG.peopleNetwork, span: "min-h-[150px]" },
 };
 
 export function CategoryMosaic({ counts }: { counts: Record<string, number> }) {

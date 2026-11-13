@@ -13,7 +13,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="container-x py-20">
+    <section className="container-x py-14 sm:py-16">
       <SectionHead kicker="How EventSphere works" title={<>Four steps to <span className="text-lime">in.</span></>} />
       <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((s, i) => (

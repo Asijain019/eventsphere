@@ -12,7 +12,7 @@ import { Countdown } from "./Countdown";
 export function Nightlife({ events, cityName }: { events: EventListItem[]; cityName: string }) {
   const next = events[0];
   return (
-    <section className="relative overflow-hidden bg-black py-20 sm:py-28">
+    <section className="relative overflow-hidden bg-black py-16 sm:py-20">
       <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(139,53,255,.35),transparent_40%),radial-gradient(circle_at_85%_70%,rgba(232,62,171,.3),transparent_45%)]" />
       <div className="container-x relative">
         <Reveal><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[.25em] text-lime"><Music2 size={14} /> Live music &amp; nightlife</p></Reveal>
@@ -60,9 +60,9 @@ export function Nightlife({ events, cityName }: { events: EventListItem[]; cityN
           {/* photo stack */}
           <Tilt max={5} className="relative mx-auto aspect-[4/5] w-full max-w-md">
             <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-violet via-magenta to-orange opacity-50 blur-2xl" aria-hidden />
-            <SmartImage src={IMG.djHands} alt="DJ hands working a controller under warm light" className="absolute inset-x-0 top-0 h-[68%] rounded-[2rem] ring-1 ring-white/20" />
-            <SmartImage src={IMG.djWebsite} alt="Neon DJ website design reference" className="absolute bottom-0 right-[-4%] h-[42%] w-[52%] rounded-2xl rotate-3 border-2 border-magenta shadow-[0_0_30px_#E83EAB88]" imgClassName="object-top" />
-            <SmartImage src={IMG.djConsole} alt="Orange halftone DJ on a giant console" className="absolute bottom-[4%] left-[-4%] h-[34%] w-[42%] rounded-2xl -rotate-3 ring-2 ring-lime" />
+            <SmartImage src={IMG.rockMusicPoster} alt="Bold collage celebrating live music" className="absolute inset-x-0 top-0 h-[68%] rounded-[2rem] ring-1 ring-white/20" />
+            <SmartImage src={IMG.openMicPoster} alt="Open mic night poster" className="absolute bottom-0 right-[-4%] h-[42%] w-[52%] rounded-2xl rotate-3 border-2 border-magenta shadow-[0_0_30px_#E83EAB88]" imgClassName="object-top" />
+            <SmartImage src={IMG.classicMicrophone} alt="Vintage-style microphone illustration" className="absolute bottom-[4%] left-[-4%] h-[34%] w-[42%] rounded-2xl -rotate-3 ring-2 ring-lime" />
           </Tilt>
         </div>
 

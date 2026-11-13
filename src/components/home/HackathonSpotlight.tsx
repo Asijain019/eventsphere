@@ -10,7 +10,7 @@ import type { EventListItem } from "@/modules/events/types";
 /** Blue/lime tech spotlight palette taken from the hackathon poster reference. */
 export function HackathonSpotlight({ events, cityName }: { events: EventListItem[]; cityName: string }) {
   return (
-    <section className="relative overflow-hidden bg-[#0A84F5] py-20 text-white">
+    <section className="relative overflow-hidden bg-[#0A84F5] py-16 text-white">
       <div aria-hidden className="absolute inset-0 select-none overflow-hidden font-display text-[22vw] font-black leading-[.8] text-white/[.07]">HACKATHON HACKATHON HACKATHON</div>
       <svg aria-hidden className="absolute -right-16 top-10 h-72 w-72 animate-float text-lime" viewBox="0 0 100 100" fill="currentColor"><path d="M50 0l9 28 27-14-14 27 28 9-28 9 14 27-27-14-9 28-9-28-27 14 14-27-28-9 28-9-14-27 27 14z" /></svg>
       <div className="container-x relative grid items-center gap-12 lg:grid-cols-[.8fr_1.2fr]">

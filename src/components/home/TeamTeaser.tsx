@@ -5,7 +5,7 @@ import { SKILLS } from "@/lib/constants";
 export function TeamTeaser() {
   const tones = ["bg-violet", "bg-magenta", "bg-lime text-ink", "bg-sky", "bg-orange text-ink"];
   return (
-    <section className="container-x pb-20">
+    <section className="container-x pb-14 sm:pb-16">
       <Reveal>
         <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-gradient p-8 sm:p-12">
           <div aria-hidden className="absolute -right-10 -top-10 h-56 w-56 rounded-full border-[28px] border-white/15" />

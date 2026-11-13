@@ -14,7 +14,7 @@ export function Marquee() {
     </ul>
   );
   return (
-    <div className="relative -rotate-1 overflow-hidden border-y border-white/10 bg-ink2 py-5" role="presentation">
+    <div className="relative -rotate-1 overflow-hidden border-y border-white/10 bg-ink2 py-3" role="presentation">
       <div className="flex w-max animate-marquee">{row}{row}</div>
     </div>
   );

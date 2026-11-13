@@ -12,7 +12,7 @@ const ACCENT = ["#8B35FF", "#E83EAB", "#D6FF55", "#2F8CFF", "#FF7A1A", "#14B8A6"
 
 export function CommunitiesSection({ communities }: { communities: HomeCommunity[] }) {
   return (
-    <section className="container-x py-20">
+    <section className="container-x py-14 sm:py-16">
       <SectionHead kicker="Communities & people" title={<>Find your <span className="text-magenta">crowd.</span></>} sub="Join interest communities, meet people attending the same events, and only chat once you both agree to connect." href="/communities" cta="Browse communities" />
       <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
         <div className="grid content-start gap-4 sm:grid-cols-2">
@@ -38,7 +38,7 @@ export function CommunitiesSection({ communities }: { communities: HomeCommunity
         <Reveal>
           <Tilt max={5}>
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
-              <SmartImage src={IMG.studentBrainstorm} alt="Students brainstorming together" className="aspect-[4/3] w-full" fallbackLabel="Students collaborating" />
+              <SmartImage src={IMG.studentBrainstorm} alt="Students sharing ideas at a campus gathering" className="aspect-[4/3] w-full" fallbackLabel="Students collaborating" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
               <div className="absolute inset-x-4 bottom-4 glass !rounded-2xl p-4">
                 <p className="font-display text-xl font-bold">Meet people who are going too</p>

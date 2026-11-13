@@ -7,8 +7,9 @@ import { api } from "@/lib/client";
 import { Alert } from "@/components/ui/States";
 import { safeNext } from "@/lib/safe-next";
 import { cn } from "@/lib/utils";
+import { collegesForCity } from "./college-options";
 
-type Meta = { cities?: { id: string; name: string; slug: string }[]; colleges?: { id: string; name: string; cityId?: string }[] };
+type Meta = { cities: { id: string; name: string; slug: string }[]; colleges: { id: string; name: string; cityId: string }[] };
 const ROLES = [
   { v: "STUDENT", label: "Student", icon: GraduationCap, hint: "Find events, teams & friends" },
   { v: "GENERAL", label: "General", icon: Users, hint: "Attend events in your city" },
@@ -20,7 +21,9 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
   const router = useRouter();
   const target = safeNext(next);
   const [f, setF] = useState({ name: "", email: "", password: "", role: "STUDENT" as string, cityId: "", collegeId: "" });
-  const [meta, setMeta] = useState<Meta>({});
+  const [meta, setMeta] = useState<Meta>({ cities: [], colleges: [] });
+  const [optionsState, setOptionsState] = useState<"loading" | "ready" | "error">("loading");
+  const [optionsRetry, setOptionsRetry] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formErr, setFormErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false); const [show, setShow] = useState(false);
@@ -28,8 +31,17 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
 
   useEffect(() => {
     if (!signup) return;
-    api<Meta>("/api/v1/meta").then(setMeta).catch(() => setMeta({})); // endpoint is optional: selects simply stay hidden
-  }, [signup]);
+    let active = true;
+    setOptionsState("loading");
+    api<Meta>("/api/v1/auth/options").then((response) => {
+      if (!active) return;
+      setMeta({ cities: response.cities ?? [], colleges: response.colleges ?? [] });
+      setOptionsState("ready");
+    }).catch(() => {
+      if (active) setOptionsState("error");
+    });
+    return () => { active = false; };
+  }, [signup, optionsRetry]);
 
   const set = (k: string, v: string) => { setF((p) => ({ ...p, [k]: v })); setErrors((p) => ({ ...p, [k]: "" })); };
   function validate() {
@@ -50,7 +62,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
       router.refresh();
     } catch (e: any) { setFormErr(e.message); setBusy(false); }
   }
-  const colleges = (meta.colleges ?? []).filter((c) => !f.cityId || !c.cityId || c.cityId === f.cityId);
+  const colleges = collegesForCity(meta.colleges, f.cityId);
   const q = next && next !== "/" ? `?next=${encodeURIComponent(target)}` : "";
 
   return (
@@ -81,12 +93,13 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
           <button type="button" onClick={() => setShow(!show)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white">{show ? <EyeOff size={18} /> : <Eye size={18} />}</button>
         </div>
       </Field>
-      {signup && meta.cities && meta.cities.length > 0 && (
+      {signup && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="city" label="City"><select id="city" className="input" value={f.cityId} onChange={(e) => { set("cityId", e.target.value); set("collegeId", ""); }}><option value="">Select city</option>{meta.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
-          <Field id="college" label="College"><select id="college" className="input" value={f.collegeId} onChange={(e) => set("collegeId", e.target.value)}><option value="">Select college</option>{colleges.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
+          <Field id="city" label="City"><select id="city" className="input" value={f.cityId} disabled={optionsState !== "ready"} onChange={(e) => { set("cityId", e.target.value); set("collegeId", ""); }}><option value="">{optionsState === "loading" ? "Loading cities..." : "Select city"}</option>{meta.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
+          <Field id="college" label="College"><select id="college" className="input" value={f.collegeId} disabled={optionsState !== "ready" || !f.cityId} onChange={(e) => set("collegeId", e.target.value)}><option value="">{!f.cityId ? "Select a city first" : colleges.length ? "Select college" : "No colleges available for this city"}</option>{colleges.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
         </div>
       )}
+      {signup && optionsState === "error" && <p role="alert" className="text-sm text-red-300">City and college choices could not be loaded. <button type="button" className="font-semibold underline" onClick={() => setOptionsRetry((n) => n + 1)}>Try again</button></p>}
       <button className="btn-primary w-full !py-3" disabled={busy}>{busy ? "Please wait..." : signup ? "Create account" : "Log in"}</button>
       <p className="text-center text-sm text-white/60">
         {signup ? <>Already have an account? <Link className="font-semibold text-lime hover:underline" href={`/login${q}`}>Log in</Link></> : <>New here? <Link className="font-semibold text-lime hover:underline" href={`/signup${q}`}>Create an account</Link></>}

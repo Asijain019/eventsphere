@@ -238,8 +238,8 @@ Migrations are deliberately run manually (not in the Vercel build) so that a bad
 
 | | |
 |---|---|
-| Live URL | Not deployed |
-| GitHub repository | [Asijain019/eventsphere](https://github.com/Asijain019/eventsphere) |
+| Public repository | [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere) |
+| Live application | Not deployed yet; add the production URL here after deployment. |
 
 ### Demo accounts
 
@@ -273,13 +273,13 @@ Limitations (honest list):
 - Local-disk uploads (`STORAGE_PROVIDER=local`) are for development; in the standalone Docker server files added at runtime may only be served after a restart. Use Vercel Blob in production.
 - Rate limiting and the notification queue are **in-process** (single instance). Use Redis/BullMQ to scale out.
 - Messaging is request/response (no WebSocket push).
-- Three requested reference images were **not supplied** (see below).
+- The event passes/badges image and EventEase website reference were **not supplied** (see below).
 
 Future: payments (Razorpay/Stripe), real-time chat (WebSockets/SSE), email/push notifications, search engine indexing, QR check-in scanning app, multi-college admin tooling, moderation dashboard, recommendation engine.
 
 ## Reference images
 
-All supplied images are in `public/assets/ref/` and mapped in `src/lib/images.ts`. Three requested references were **not in the project files**: the student brainstorming photograph, the event passes/badges photograph and the EventEase website reference. The app falls back to a branded gradient for those; drop the files into `public/assets/ref/` as `student-brainstorm.jpg`, `event-passes.jpg`, `eventease-ref.jpg` to activate them.
+The supplied event, arts, community, music, photography, reading and sports images are stored in `public/assets/ref/` and mapped in `src/lib/images.ts` for the home page and category artwork. The event passes/badges image and EventEase website reference were not supplied; those optional elements continue to use their designed fallbacks.
 
 ## Further documentation
 

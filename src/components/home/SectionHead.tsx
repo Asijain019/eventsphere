@@ -4,7 +4,7 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export function SectionHead({ kicker, title, sub, href, cta, light }: { kicker: string; title: React.ReactNode; sub?: string; href?: string; cta?: string; light?: boolean }) {
   return (
-    <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
+    <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
         <p className={`mb-3 text-xs font-bold uppercase tracking-[.25em] ${light ? "text-violet" : "text-lime"}`}>{kicker}</p>
         <h2 className="section-title">{title}</h2>
