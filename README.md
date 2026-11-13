@@ -5,7 +5,7 @@
 EventSphere helps students discover campus and city events, register individually or as teams, and connect with other attendees. Jaipur is the default city.
 
 **Repository:** [github.com/Asijain019/eventsphere](https://github.com/Asijain019/eventsphere)<br>
-**Live application:** Not deployed yet.
+**Live application:** [eventsphere-rosy-nine.vercel.app](https://eventsphere-rosy-nine.vercel.app/)
 
 ## Features
 
