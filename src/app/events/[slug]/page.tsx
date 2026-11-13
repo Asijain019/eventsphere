@@ -50,8 +50,8 @@ export default async function EventPage({ params }: { params: { slug: string } }
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <div aria-hidden className="pointer-events-none absolute inset-0 z-0 scale-110 bg-cover bg-center opacity-25 blur-2xl" style={images[0] ? { backgroundImage: `url(${JSON.stringify(images[0])})` } : undefined} />
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-ink/40 via-ink/80 to-ink" />
-        <div className="container-x relative z-10 grid gap-4 py-4 sm:gap-8 sm:py-7 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-10 lg:py-14">
-          <div className="space-y-3 sm:space-y-4 lg:order-last">
+        <div className="container-x relative z-10 grid grid-cols-1 gap-4 py-4 sm:gap-8 sm:py-7 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-10 lg:py-14">
+          <div className="min-w-0 space-y-3 sm:space-y-4 lg:order-last">
             <nav aria-label="Breadcrumb" className="text-xs text-white/50"><Link href="/events" className="hover:text-lime">Events</Link> / <Link href={`/events?category=${e.category.slug}`} className="hover:text-lime">{e.category.name}</Link></nav>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full px-3 py-1 text-xs font-bold text-ink" style={{ background: e.category.color }}>{e.category.name}</span>
@@ -76,7 +76,7 @@ export default async function EventPage({ params }: { params: { slug: string } }
             {e.registrationDeadline && e.status === "PUBLISHED" && new Date(e.startAt) > new Date() && <div className="card p-5"><Countdown to={new Date(e.registrationDeadline).toISOString()} /></div>}
             <div className="flex items-center gap-3"><FavouriteButton eventId={e.id} initial={e.favourited} loggedIn={!!user} className="!h-12 !w-12" /><span className="text-sm text-white/60">Save for later</span></div>
           </div>
-          <div className="lg:order-first [&>div>div:first-child]:!aspect-[16/9]">
+          <div className="min-w-0 lg:order-first [&>div>div:first-child]:!aspect-[16/9]">
             <Gallery images={images} title={e.title} />
           </div>
         </div>
