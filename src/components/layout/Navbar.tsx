@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,8 +21,15 @@ export function Navbar({ user, unread = 0 }: { user: U; unread?: number }) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/80 backdrop-blur-xl">
       <div className="container-x flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2" aria-label="EventSphere home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient font-display text-lg font-black shadow-glow">E</span>
+        <Link href="/" className="flex items-center gap-2.5" aria-label="EventSphere home">
+          <Image
+            src="/assets/logo.png"
+            alt="EventSphere Logo"
+            width={34}
+            height={38}
+            className="h-9 w-auto object-contain transition-transform duration-300 hover:scale-105"
+            priority
+          />
           <span className="font-display text-xl font-bold tracking-tight">Event<span className="text-lime">Sphere</span></span>
         </Link>
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">

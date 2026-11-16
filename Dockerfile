@@ -45,6 +45,7 @@ COPY --from=migrate-deps --chown=nextjs:nodejs /migrate /app/migrate
 COPY --chown=nextjs:nodejs scripts/migrate.mjs /app/migrate/migrate.mjs
 COPY --chown=nextjs:nodejs drizzle /app/drizzle
 COPY --chown=nextjs:nodejs --chmod=755 docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
 RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
 USER nextjs
 EXPOSE 3000

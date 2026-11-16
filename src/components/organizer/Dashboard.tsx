@@ -49,21 +49,19 @@ export function OrganizerDashboard({ name }: { name: string }) {
   const shown = (rows ?? []).filter((r) => (filter === "ALL" || r.status === filter) && (!q || r.title.toLowerCase().includes(q.toLowerCase())));
 
   return (
-    <main>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <SmartImage src={IMG.stageBW} alt="" className="absolute inset-0 h-full w-full opacity-25" imgClassName="grayscale" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/90 to-ink/40" />
-        <div className="container-x relative flex flex-col gap-6 py-12 sm:py-16 md:flex-row md:items-end md:justify-between">
+    <main className="!pt-0">
+      {/* Hero: top padding removed so it sits right under the navbar */}
+      <section className="border-b border-white/10">
+        <div className="container-x flex flex-col gap-3 !pt-0 pb-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="chip mb-4 border-lime/40 text-lime">Organizer dashboard</p>
-            <h1 className="section-title">Welcome back,<br /><span className="text-lime">{name.split(" ")[0]}.</span></h1>
-            <p className="mt-4 max-w-xl text-white/65">Create events, review contestants, staff your volunteers and keep your attendees in the loop.</p>
+            <p className="chip mb-2 border-lime/40 text-lime">Organizer dashboard</p>
+            <h1 className="font-display text-3xl font-bold sm:text-4xl">Welcome back, <span className="text-lime">{name.split(" ")[0]}.</span></h1>
           </div>
-          <Link href="/organizer/events/new" className="btn-lime self-start md:self-end"><Plus size={18} />Create event</Link>
+          <Link href="/organizer/events/new" className="btn-lime self-start md:self-auto"><Plus size={18} />Create event</Link>
         </div>
       </section>
 
-      <div className="container-x space-y-8 py-10">
+      <div className="container-x space-y-8 py-8">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
           {rows === null && !err ? Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-28" />) : (<>
             <StatTile label="Events" value={stats.total} hint={`${stats.published} published`} />

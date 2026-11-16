@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Camera, AtSign, Briefcase, Code2 } from "lucide-react";
 export function Footer() {
@@ -10,7 +11,16 @@ export function Footer() {
     <footer className="mt-24 border-t border-white/10 bg-ink2/60">
       <div className="container-x grid gap-10 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
-          <p className="font-display text-3xl font-bold">Event<span className="text-lime">Sphere</span></p>
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/assets/logo.png"
+              alt="EventSphere Logo"
+              width={32}
+              height={36}
+              className="h-8 w-auto object-contain"
+            />
+            <p className="font-display text-3xl font-bold">Event<span className="text-lime">Sphere</span></p>
+          </div>
           <p className="mt-2 text-sm font-medium text-lime">Discover. Experience. Connect.</p>
           <p className="mt-3 max-w-xs text-sm text-white/55">Inter-college and city-wide events, communities and people — starting in Jaipur.</p>
           <div className="mt-5 flex gap-2">
